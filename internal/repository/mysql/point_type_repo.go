@@ -1,0 +1,76 @@
+package mysql
+
+import (
+	d "acto/domain/points"
+	uc "acto/points"
+	"context"
+	"database/sql"
+)
+
+type PointTypeRepository struct {
+	db *sql.DB
+}
+
+func NewPointTypeRepository(db *sql.DB) *PointTypeRepository { return &PointTypeRepository{db: db} }
+
+var _ uc.PointTypeRepository = (*PointTypeRepository)(nil)
+
+func (r *PointTypeRepository) CreatePointType(ctx context.Context, pt d.PointType) (string, error) {
+	_, err := r.db.ExecContext(ctx, `INSERT INTO point_types (id,name,display_name,description,enabled,created_at) VALUES (UUID(),?,?,?,?,NOW())`, pt.Name, pt.DisplayName, pt.Description, pt.Enabled)
+	if err != nil {
+		return "", err
+	}
+	var id string
+	_ = r.db.QueryRowContext(ctx, `SELECT id FROM point_types WHERE name=?`, pt.Name).Scan(&id)
+	return id, nil
+}
+
+func (r *PointTypeRepository) UpdatePointType(ctx context.Context, pt d.PointType) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE point_types SET display_name=?, description=?, enabled=? WHERE id=?`, pt.DisplayName, pt.Description, pt.Enabled, pt.ID)
+	return err
+}
+
+func (r *PointTypeRepository) DeletePointType(ctx context.Context, pointTypeID string) error {
+	_, err := r.db.ExecContext(ctx, `DELETE FROM point_types WHERE id=?`, pointTypeID)
+	return err
+}
+
+func (r *PointTypeRepository) GetPointTypeByID(ctx context.Context, pointTypeID string) (*d.PointType, error) {
+	row := r.db.QueryRowContext(ctx, `SELECT id,name,display_name,description,enabled,created_at FROM point_types WHERE id=?`, pointTypeID)
+	var pt d.PointType
+	if err := row.Scan(&pt.ID, &pt.Name, &pt.DisplayName, &pt.Description, &pt.Enabled, &pt.CreatedAt); err != nil {
+		return nil, err
+	}
+	return &pt, nil
+}
+
+func (r *PointTypeRepository) GetPointTypeByName(ctx context.Context, name string) (*d.PointType, error) {
+	row := r.db.QueryRowContext(ctx, `SELECT id,name,display_name,description,enabled,created_at FROM point_types WHERE name=?`, name)
+	var pt d.PointType
+	if err := row.Scan(&pt.ID, &pt.Name, &pt.DisplayName, &pt.Description, &pt.Enabled, &pt.CreatedAt); err != nil {
+		return nil, err
+	}
+	return &pt, nil
+}
+
+func (r *PointTypeRepository) ListPointTypes(ctx context.Context, limit, offset int) ([]d.PointType, error) {
+	rows, err := r.db.QueryContext(ctx, `SELECT id,name,display_name,description,enabled,created_at FROM point_types ORDER BY created_at DESC LIMIT ? OFFSET ?`, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var res []d.PointType
+	for rows.Next() {
+		var pt d.PointType
+		if err := rows.Scan(&pt.ID, &pt.Name, &pt.DisplayName, &pt.Description, &pt.Enabled, &pt.CreatedAt); err != nil {
+			return nil, err
+		}
+		res = append(res, pt)
+	}
+	return res, rows.Err()
+}
+
+func (r *PointTypeRepository) HasBalances(ctx context.Context, pointTypeID string) (bool, error) {
+	// Placeholder: real check when balances table exists
+	return false, nil
+}

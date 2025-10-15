@@ -1,0 +1,21 @@
+# Go
+bin/
+build/
+*.exe
+*.test
+*.out
+vendor/
+/tmp/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Tools
+coverage/
+.env*
+Dockerfile*
+*.log*
