@@ -146,9 +146,27 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /rankings/{pointTypeId}:
+  /rankings:
     get:
-      summary: Get ranking for a point type
+      summary: Get ranking for a point type by name
+      parameters:
+        - in: query
+          name: pointTypeName
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            default: 100
+        - in: query
+          name: offset
+          required: false
+          schema:
+            type: integer
+            default: 0
       responses:
         "200": { description: OK }
   /rewards:
@@ -186,9 +204,28 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
   /distributions:
     post:
-      summary: Execute rank-based reward distribution
+      summary: Execute rank-based reward distribution by point type name
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pointTypeName:
+                  type: string
+                topN:
+                  type: integer
+                  default: 100
+              required: [pointTypeName]
       responses:
         "202": { description: Accepted }
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     ErrorResponse:

@@ -9,14 +9,20 @@ type DistributionService struct {
 	rewards RewardRepository
 	balance BalanceRepository
 	ranking RankingRepository
+	points  PointTypeRepository
 }
 
-func NewDistributionService(rew RewardRepository, bal BalanceRepository, rank RankingRepository) *DistributionService {
-	return &DistributionService{rewards: rew, balance: bal, ranking: rank}
+func NewDistributionService(rew RewardRepository, bal BalanceRepository, rank RankingRepository, pts PointTypeRepository) *DistributionService {
+	return &DistributionService{rewards: rew, balance: bal, ranking: rank, points: pts}
 }
 
 // Execute runs a distribution for a point type using current ranking top N and active rules.
-func (s *DistributionService) Execute(ctx context.Context, pointTypeID string, topN int) error {
+func (s *DistributionService) Execute(ctx context.Context, pointTypeName string, topN int) error {
+	pt, err := s.points.GetPointTypeByName(ctx, pointTypeName)
+	if err != nil {
+		return err
+	}
+	pointTypeID := pt.ID
 	rules, err := s.rewards.ListRules(ctx, pointTypeID)
 	if err != nil {
 		return err

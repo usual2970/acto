@@ -14,8 +14,8 @@ func NewDistributionsHandler(svc *uc.DistributionService) *DistributionsHandler 
 
 func (h *DistributionsHandler) Execute(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		PointTypeID string
-		TopN        int
+		PointTypeName string
+		TopN          int
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -24,7 +24,7 @@ func (h *DistributionsHandler) Execute(w http.ResponseWriter, r *http.Request) {
 	if req.TopN <= 0 {
 		req.TopN = 100
 	}
-	if err := h.svc.Execute(r.Context(), req.PointTypeID, req.TopN); err != nil {
+	if err := h.svc.Execute(r.Context(), req.PointTypeName, req.TopN); err != nil {
 		writeDomainError(w, err, nil)
 		return
 	}

@@ -45,12 +45,12 @@ func main() {
 	r.HandleFunc("/api/v1/users/{userId}/transactions", bHandler.ListTransactions).Methods(http.MethodGet)
 
 	// Rankings handler (read-only for now)
-	rankingsHandler := restHandlers.NewRankingsHandler(nil)
+	rankingsHandler := restHandlers.NewRankingsHandler(nil, ptRepo)
 	r.HandleFunc("/api/v1/rankings", rankingsHandler.Get).Methods(http.MethodGet)
 
 	// US4 wiring (distribution)
 	rewardsRepo := repoMysql.NewRewardsRepository(db)
-	distSvc := usecases.NewDistributionService(rewardsRepo, bRepo, nil)
+	distSvc := usecases.NewDistributionService(rewardsRepo, bRepo, nil, ptRepo)
 	distHandler := restHandlers.NewDistributionsHandler(distSvc)
 	r.HandleFunc("/api/v1/distributions", distHandler.Execute).Methods(http.MethodPost)
 
