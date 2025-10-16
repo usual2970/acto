@@ -9,8 +9,30 @@ A Clean Architecture Go project providing a multi-type integer points system. Su
 - Cache/Ranking: Redis (ZSET per point type)
 - API Docs: OpenAPI (YAML in `specs/001-/contracts/openapi.yaml`)
 
+## Dependency Injection
+
+The project uses uber-go/dig for dependency injection with clear layer modules:
+
+- **ConfigModule**: Configuration loading
+- **InfraModule**: Infrastructure dependencies (DB, Redis)  
+- **RepoModule**: Repository implementations
+- **ServiceModule**: Business services
+- **DeliveryModule**: HTTP handlers
+
+```go
+import "acto/lib/container"
+
+// Build DI container
+c, err := container.Build()
+
+// Create library from container
+library, err := lib.NewLibraryFromContainer(c)
+```
+
 ## Project Layout (key paths)
 - `app/` – Application entrypoint (HTTP server, DI)
+- `lib/` – Library mode (DI container, framework-agnostic router)
+- `lib/container/` – Dependency injection with uber-go/dig
 - `domain/points/` – Domain entities and errors (pure Go)
 - `points/` – Use case layer (business logic, interfaces)
 - `internal/repository/mysql/` – MySQL repositories and migrations

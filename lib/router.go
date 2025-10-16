@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	restHandlers "acto/internal/rest/handlers"
 )
 
 // http adapters
@@ -121,22 +123,22 @@ func RegisterBusinessRoutes(
 	}
 
 	if svc.PointTypeService != nil {
-		// Note: handlers expect mux-style vars for {name}
-		pt := NewPointTypesHTTPHandler(svc)
+		// Note: handlers expect path params to be injected via setVars where needed
+		pt := restHandlers.NewPointTypesHandler(svc.PointTypeService)
 		reg.Handle(http.MethodPost, basePath+"/point-types", http.HandlerFunc(pt.Create))
 		reg.Handle(http.MethodGet, basePath+"/point-types", http.HandlerFunc(pt.List))
 		reg.Handle(http.MethodPatch, basePath+"/point-types/{name}", wrap(pt.Update, true))
 		reg.Handle(http.MethodDelete, basePath+"/point-types/{name}", wrap(pt.Delete, true))
 	}
 	if svc.BalanceService != nil {
-		b := NewBalancesHTTPHandler(svc)
+		b := restHandlers.NewBalancesHandler(svc.BalanceService)
 		reg.Handle(http.MethodPost, basePath+"/users/balance/credit", http.HandlerFunc(b.Credit))
 		reg.Handle(http.MethodPost, basePath+"/users/balance/debit", http.HandlerFunc(b.Debit))
 		reg.Handle(http.MethodGet, basePath+"/users/{userId}/transactions", wrap(b.ListTransactions, true))
 	}
 
 	if svc.RankingsService != nil {
-		rk := NewRankingHTTPHandler(svc, svc.RankingsService)
+		rk := restHandlers.NewRankingsHandler(svc.RankingsService)
 		reg.Handle(http.MethodGet, basePath+"/rankings", http.HandlerFunc(rk.Get))
 	}
 

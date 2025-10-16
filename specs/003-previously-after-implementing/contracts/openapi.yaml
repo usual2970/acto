@@ -1,0 +1,7 @@
+openapi: 3.0.3
+info:
+  title: DI Management (no public endpoints)
+  version: 0.1.0
+  description: DI changes do not expose public APIs; contract file included for completeness
+paths: {}
+components: {}

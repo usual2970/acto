@@ -6,24 +6,26 @@ import (
 
 	"acto/internal/config"
 	"acto/lib"
+
 	"database/sql"
 
 	_ "github.com/go-sql-driver/mysql"
-	goRedis "github.com/redis/go-redis/v9"
-
 	"github.com/gorilla/mux"
+	goRedis "github.com/redis/go-redis/v9"
 )
 
-// muxRegistrar adapts *mux.Router to lib.RouteRegistrar
-type muxRegistrar struct{ r *mux.Router }
+// muxAdapter adapts *mux.Router to lib.RouteRegistrar without coupling lib to mux
+type muxAdapter struct{ r *mux.Router }
 
-func (m muxRegistrar) Handle(method string, path string, h http.Handler) {
+func (m muxAdapter) Handle(method string, path string, h http.Handler) {
 	m.r.Handle(path, h).Methods(method)
 }
 
 func main() {
-	config := config.Load()
+	// Load config
+	cfg := config.Load()
 
+	// Create router
 	r := mux.NewRouter()
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -31,31 +33,37 @@ func main() {
 	}).Methods(http.MethodGet)
 
 	// Initialize shared connections
-	db, err := sql.Open("mysql", config.MySQLDSN)
+	db, err := sql.Open("mysql", cfg.MySQLDSN)
 	if err != nil {
 		log.Fatalf("failed to open mysql connection: %v", err)
 	}
-	redisClient := goRedis.NewClient(&goRedis.Options{Addr: config.RedisAddr})
+	redisClient := goRedis.NewClient(&goRedis.Options{Addr: cfg.RedisAddr})
 
-	// Initialize library and mount its routes under /api/v1
-	library, err := lib.NewLibrary(lib.LibraryConfig{DB: db, Redis: redisClient})
+	// Create library via one-shot setup (hides internal DI)
+	library, err := lib.Setup(db, redisClient)
 	if err != nil {
 		log.Fatalf("failed to init library: %v", err)
 	}
 
-	// Framework-agnostic registration via small adapter
-	if err := lib.RegisterRoutes(muxRegistrar{r: r}, "/api/v1", library); err != nil {
+	// Create registrar adapter (mux-specific, kept out of lib to remain framework-agnostic)
+	adapter := muxAdapter{r: r}
+
+	// Register routes using DI container
+	if err := lib.RegisterRoutes(adapter, "/api/v1", library); err != nil {
 		log.Fatalf("failed to register library routes: %v", err)
 	}
 
-	// Register business routes (framework-agnostic with mux param adapters)
+	// Framework-specific helpers for path params
 	getParams := func(req *http.Request) map[string]string { return mux.Vars(req) }
-	if err := lib.RegisterBusinessRoutes(muxRegistrar{r: r}, "/api/v1", library, getParams, mux.SetURLVars); err != nil {
+	setVars := func(req *http.Request, vars map[string]string) *http.Request { return mux.SetURLVars(req, vars) }
+
+	// Register business routes using DI container
+	if err := lib.RegisterBusinessRoutes(adapter, "/api/v1", library, getParams, setVars); err != nil {
 		log.Fatalf("failed to register business routes: %v", err)
 	}
 
-	log.Println("listening on " + config.HTTPAddr)
-	if err := http.ListenAndServe(config.HTTPAddr, r); err != nil {
+	log.Println("listening on " + cfg.HTTPAddr)
+	if err := http.ListenAndServe(cfg.HTTPAddr, r); err != nil {
 		log.Fatal(err)
 	}
 }
