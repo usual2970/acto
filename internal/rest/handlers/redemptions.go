@@ -13,7 +13,10 @@ func NewRedemptionsHandler(svc *uc.RedemptionService) *RedemptionsHandler {
 }
 
 func (h *RedemptionsHandler) Redeem(w http.ResponseWriter, r *http.Request) {
-	var req struct{ UserID, RewardID string }
+	var req struct {
+		UserID   string `json:"userId"`
+		RewardID string `json:"rewardId"`
+	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

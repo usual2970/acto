@@ -77,7 +77,7 @@ func (s *BalanceService) Debit(ctx context.Context, userID, pointTypeName, reaso
 }
 
 // ListTransactions returns transactions for a user with optional filters
-func (s *BalanceService) ListTransactions(ctx context.Context, userID, pointTypeName, op, startISO, endISO string, limit, offset int) ([]d.Transaction, int, error) {
+func (s *BalanceService) ListTransactions(ctx context.Context, userID, pointTypeName, op string, startTime, endTime int64, limit, offset int) ([]d.Transaction, int, error) {
 	var pointTypeID string
 	if pointTypeName != "" {
 		pt, err := s.pointTypes.GetPointTypeByName(ctx, pointTypeName)
@@ -86,6 +86,6 @@ func (s *BalanceService) ListTransactions(ctx context.Context, userID, pointType
 		}
 		pointTypeID = pt.ID
 	}
-	filter := TransactionFilter{PointTypeID: pointTypeID, OperationType: op, StartTimeISO: startISO, EndTimeISO: endISO, Limit: limit, Offset: offset}
+	filter := TransactionFilter{PointTypeID: pointTypeID, OperationType: op, StartTime: startTime, EndTime: endTime, Limit: limit, Offset: offset}
 	return s.repo.ListTransactions(ctx, userID, filter)
 }

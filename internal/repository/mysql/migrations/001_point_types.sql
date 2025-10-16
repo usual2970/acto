@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS point_types (
   display_name VARCHAR(256) NOT NULL,
   description TEXT NULL,
   enabled TINYINT(1) NOT NULL DEFAULT 1,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted_at BIGINT NULL,
+  created_at BIGINT NOT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

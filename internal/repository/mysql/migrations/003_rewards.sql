@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS reward_rules (
 CREATE TABLE IF NOT EXISTS reward_distributions (
   id CHAR(36) NOT NULL,
   snapshot_id CHAR(36) NOT NULL,
-  executed_at TIMESTAMP NULL,
+  executed_at BIGINT NULL,
   status ENUM('pending','completed','failed') NOT NULL DEFAULT 'pending',
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

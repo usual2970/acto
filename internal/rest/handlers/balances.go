@@ -15,8 +15,10 @@ func NewBalancesHandler(svc *uc.BalanceService) *BalancesHandler { return &Balan
 
 func (h *BalancesHandler) Credit(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		UserID, PointTypeName, Reason string
-		Amount                        int64
+		UserID        string `json:"userId"`
+		PointTypeName string `json:"pointTypeName"`
+		Reason        string `json:"reason"`
+		Amount        int64  `json:"amount"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -31,8 +33,10 @@ func (h *BalancesHandler) Credit(w http.ResponseWriter, r *http.Request) {
 
 func (h *BalancesHandler) Debit(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		UserID, PointTypeName, Reason string
-		Amount                        int64
+		UserID        string `json:"userId"`
+		PointTypeName string `json:"pointTypeName"`
+		Reason        string `json:"reason"`
+		Amount        int64  `json:"amount"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -52,9 +56,9 @@ func (h *BalancesHandler) ListTransactions(w http.ResponseWriter, r *http.Reques
 	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
 	pointTypeName := r.URL.Query().Get("pointTypeName")
 	op := r.URL.Query().Get("op")
-	startISO := r.URL.Query().Get("start")
-	endISO := r.URL.Query().Get("end")
-	items, total, err := h.svc.ListTransactions(r.Context(), userID, pointTypeName, op, startISO, endISO, limit, offset)
+	startTime, _ := strconv.ParseInt(r.URL.Query().Get("startTime"), 10, 64)
+	endTime, _ := strconv.ParseInt(r.URL.Query().Get("endTime"), 10, 64)
+	items, total, err := h.svc.ListTransactions(r.Context(), userID, pointTypeName, op, startTime, endTime, limit, offset)
 	if err != nil {
 		writeDomainError(w, err, nil)
 		return

@@ -5,6 +5,7 @@ import (
 	uc "acto/points"
 	"context"
 	"database/sql"
+	"time"
 )
 
 type RedemptionRepository struct{ db *sql.DB }
@@ -14,7 +15,7 @@ func NewRedemptionRepository(db *sql.DB) *RedemptionRepository { return &Redempt
 var _ uc.RedemptionRepository = (*RedemptionRepository)(nil)
 
 func (r *RedemptionRepository) CreateReward(ctx context.Context, rr d.RedemptionReward) (string, error) {
-	_, err := r.db.ExecContext(ctx, `INSERT INTO redemption_rewards (id,name,description,quantity,enabled,total_redeemed) VALUES (UUID(),?,?,?,?,0)`, rr.Name, rr.Description, rr.Quantity, rr.Enabled)
+	_, err := r.db.ExecContext(ctx, `INSERT INTO redemption_rewards (id,name,description,quantity,enabled,total_redeemed,created_at) VALUES (UUID(),?,?,?,?,0,?)`, rr.Name, rr.Description, rr.Quantity, rr.Enabled, time.Now().Unix())
 	if err != nil {
 		return "", err
 	}
@@ -57,7 +58,7 @@ func (r *RedemptionRepository) DecrementInventory(ctx context.Context, rewardID 
 }
 
 func (r *RedemptionRepository) CreateRedemptionRecord(ctx context.Context, rec d.RedemptionRecord) (string, error) {
-	_, err := r.db.ExecContext(ctx, `INSERT INTO redemption_records (id,user_id,reward_id,status) VALUES (UUID(),?,?,'completed')`, rec.UserID, rec.RewardID)
+	_, err := r.db.ExecContext(ctx, `INSERT INTO redemption_records (id,user_id,reward_id,status,created_at) VALUES (UUID(),?,?,'completed',?)`, rec.UserID, rec.RewardID, time.Now().Unix())
 	if err != nil {
 		return "", err
 	}

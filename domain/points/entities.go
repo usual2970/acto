@@ -1,21 +1,22 @@
 package points
 
-import "time"
+// Time fields are now represented as Unix timestamps (int64)
 
 type PointType struct {
-	ID          string
-	Name        string
-	DisplayName string
-	Description string
-	Enabled     bool
-	CreatedAt   time.Time
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	DisplayName string `json:"displayName"`
+	Description string `json:"description"`
+	Enabled     bool   `json:"enabled"`
+	DeletedAt   *int64 `json:"deletedAt,omitempty"`
+	CreatedAt   int64  `json:"createdAt"`
 }
 
 type UserBalance struct {
-	UserID      string
-	PointTypeID string
-	Balance     int64
-	UpdatedAt   time.Time
+	UserID      string `json:"userId"`
+	PointTypeID string `json:"pointTypeId"`
+	Balance     int64  `json:"balance"`
+	UpdatedAt   int64  `json:"updatedAt"`
 }
 
 type TransactionType string
@@ -26,25 +27,25 @@ const (
 )
 
 type Transaction struct {
-	ID          string
-	UserID      string
-	PointTypeID string
-	Amount      int64
-	Type        TransactionType
-	Reason      string
-	Before      int64
-	After       int64
-	CreatedAt   time.Time
+	ID          string          `json:"id"`
+	UserID      string          `json:"userId"`
+	PointTypeID string          `json:"pointTypeId"`
+	Amount      int64           `json:"amount"`
+	Type        TransactionType `json:"type"`
+	Reason      string          `json:"reason"`
+	Before      int64           `json:"before"`
+	After       int64           `json:"after"`
+	CreatedAt   int64           `json:"createdAt"`
 }
 
 type RewardRule struct {
-	ID                string
-	PointTypeID       string
-	MinRank           int
-	MaxRank           int
-	RewardAmount      int64
-	RewardPointTypeID string
-	Active            bool
+	ID                string `json:"id"`
+	PointTypeID       string `json:"pointTypeId"`
+	MinRank           int    `json:"minRank"`
+	MaxRank           int    `json:"maxRank"`
+	RewardAmount      int64  `json:"rewardAmount"`
+	RewardPointTypeID string `json:"rewardPointTypeId"`
+	Active            bool   `json:"active"`
 }
 
 type RewardDistributionStatus string
@@ -56,21 +57,21 @@ const (
 )
 
 type RewardDistribution struct {
-	ID         string
-	SnapshotID string
-	ExecutedAt time.Time
-	Status     RewardDistributionStatus
+	ID         string                   `json:"id"`
+	SnapshotID string                   `json:"snapshotId"`
+	ExecutedAt int64                    `json:"executedAt"`
+	Status     RewardDistributionStatus `json:"status"`
 }
 
 type RedemptionReward struct {
-	ID            string
-	Name          string
-	Description   string
-	Costs         map[string]int64 // pointTypeID -> amount
-	Quantity      int
-	Enabled       bool
-	TotalRedeemed int
-	CreatedAt     time.Time
+	ID            string           `json:"id"`
+	Name          string           `json:"name"`
+	Description   string           `json:"description"`
+	Costs         map[string]int64 `json:"costs"` // pointTypeID -> amount
+	Quantity      int              `json:"quantity"`
+	Enabled       bool             `json:"enabled"`
+	TotalRedeemed int              `json:"totalRedeemed"`
+	CreatedAt     int64            `json:"createdAt"`
 }
 
 type RedemptionStatus string
@@ -82,10 +83,10 @@ const (
 )
 
 type RedemptionRecord struct {
-	ID        string
-	UserID    string
-	RewardID  string
-	Costs     map[string]int64
-	CreatedAt time.Time
-	Status    RedemptionStatus
+	ID        string           `json:"id"`
+	UserID    string           `json:"userId"`
+	RewardID  string           `json:"rewardId"`
+	Costs     map[string]int64 `json:"costs"`
+	CreatedAt int64            `json:"createdAt"`
+	Status    RedemptionStatus `json:"status"`
 }

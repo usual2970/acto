@@ -12,6 +12,7 @@ type PointTypeRepository interface {
 	CreatePointType(ctx context.Context, pt d.PointType) (string, error)
 	UpdatePointType(ctx context.Context, pt d.PointType) error
 	DeletePointType(ctx context.Context, pointTypeID string) error
+	SoftDeletePointType(ctx context.Context, name string) error
 	GetPointTypeByID(ctx context.Context, pointTypeID string) (*d.PointType, error)
 	GetPointTypeByName(ctx context.Context, name string) (*d.PointType, error)
 	ListPointTypes(ctx context.Context, limit, offset int) ([]d.PointType, error)
@@ -49,8 +50,8 @@ type RedemptionRepository interface {
 type TransactionFilter struct {
 	PointTypeID   string
 	OperationType string // "credit" | "debit" | ""
-	StartTimeISO  string // RFC3339 or empty
-	EndTimeISO    string // RFC3339 or empty
+	StartTime     int64  // Unix timestamp or 0
+	EndTime       int64  // Unix timestamp or 0
 	Limit         int
 	Offset        int
 }

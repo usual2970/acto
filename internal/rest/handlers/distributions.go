@@ -14,8 +14,8 @@ func NewDistributionsHandler(svc *uc.DistributionService) *DistributionsHandler 
 
 func (h *DistributionsHandler) Execute(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		PointTypeName string
-		TopN          int
+		PointTypeName string `json:"pointTypeName"`
+		TopN          int    `json:"topN"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)

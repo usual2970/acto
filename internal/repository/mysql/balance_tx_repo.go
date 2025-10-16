@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 )
 
 type BalanceTxRepository struct {
@@ -58,13 +59,13 @@ func (r *BalanceTxRepository) GetUserBalanceForUpdate(ctx context.Context, userI
 
 func (r *BalanceTxRepository) UpsertUserBalance(ctx context.Context, ub d.UserBalance) error {
 	ex := getTx(ctx, r.db)
-	_, err := ex.ExecContext(ctx, `INSERT INTO user_balances (user_id, point_type_id, balance) VALUES (?,?,?) ON DUPLICATE KEY UPDATE balance=VALUES(balance)`, ub.UserID, ub.PointTypeID, ub.Balance)
+	_, err := ex.ExecContext(ctx, `INSERT INTO user_balances (user_id, point_type_id, balance, updated_at) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE balance=VALUES(balance), updated_at=VALUES(updated_at)`, ub.UserID, ub.PointTypeID, ub.Balance, time.Now().Unix())
 	return err
 }
 
 func (r *BalanceTxRepository) InsertTransaction(ctx context.Context, tx d.Transaction) (string, error) {
 	ex := getTx(ctx, r.db)
-	_, err := ex.ExecContext(ctx, `INSERT INTO transactions (id,user_id,point_type_id,amount,type,reason,before_balance,after_balance) VALUES (UUID(),?,?,?,?,?,?,?)`, tx.UserID, tx.PointTypeID, tx.Amount, string(tx.Type), tx.Reason, tx.Before, tx.After)
+	_, err := ex.ExecContext(ctx, `INSERT INTO transactions (id,user_id,point_type_id,amount,type,reason,before_balance,after_balance,created_at) VALUES (UUID(),?,?,?,?,?,?,?,?)`, tx.UserID, tx.PointTypeID, tx.Amount, string(tx.Type), tx.Reason, tx.Before, tx.After, time.Now().Unix())
 	if err != nil {
 		return "", err
 	}
@@ -84,13 +85,13 @@ func (r *BalanceTxRepository) ListTransactions(ctx context.Context, userID strin
 		where += " AND type=?"
 		args = append(args, filter.OperationType)
 	}
-	if filter.StartTimeISO != "" {
+	if filter.StartTime > 0 {
 		where += " AND created_at>=?"
-		args = append(args, filter.StartTimeISO)
+		args = append(args, filter.StartTime)
 	}
-	if filter.EndTimeISO != "" {
+	if filter.EndTime > 0 {
 		where += " AND created_at<?"
-		args = append(args, filter.EndTimeISO)
+		args = append(args, filter.EndTime)
 	}
 
 	// total count

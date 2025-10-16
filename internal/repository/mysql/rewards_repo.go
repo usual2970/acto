@@ -5,6 +5,7 @@ import (
 	uc "acto/points"
 	"context"
 	"database/sql"
+	"time"
 )
 
 type RewardsRepository struct{ db *sql.DB }
@@ -51,6 +52,6 @@ func (r *RewardsRepository) CreateDistribution(ctx context.Context, rd d.RewardD
 }
 
 func (r *RewardsRepository) MarkDistributionCompleted(ctx context.Context, distributionID string) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE reward_distributions SET status='completed', executed_at=NOW() WHERE id=?`, distributionID)
+	_, err := r.db.ExecContext(ctx, `UPDATE reward_distributions SET status='completed', executed_at=? WHERE id=?`, time.Now().Unix(), distributionID)
 	return err
 }
