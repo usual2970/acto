@@ -104,6 +104,7 @@ func (r *BalanceTxRepository) ListTransactions(ctx context.Context, userID strin
 	if filter.Limit <= 0 {
 		filter.Limit = 20
 	}
+
 	rows, err := r.db.QueryContext(ctx, fmt.Sprintf("SELECT id,user_id,point_type_id,amount,type,reason,before_balance,after_balance,created_at FROM transactions %s ORDER BY created_at DESC LIMIT ? OFFSET ?", where), append(args, filter.Limit, filter.Offset)...)
 	if err != nil {
 		return nil, 0, err

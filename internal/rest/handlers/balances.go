@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 type BalancesHandler struct {
@@ -51,7 +53,9 @@ func (h *BalancesHandler) Debit(w http.ResponseWriter, r *http.Request) {
 
 func (h *BalancesHandler) ListTransactions(w http.ResponseWriter, r *http.Request) {
 	// Parse params
-	userID := r.URL.Query().Get("userId")
+	vars := mux.Vars(r)
+	userID := vars["userId"]
+
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
 	pointTypeName := r.URL.Query().Get("pointTypeName")

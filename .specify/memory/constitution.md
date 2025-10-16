@@ -1,3 +1,18 @@
+<!--
+Sync Impact Report:
+Version change: 1.0.0 → 1.1.0
+Modified principles: None
+Added sections: VII. Naming Conventions (NON-NEGOTIABLE)
+Removed sections: None
+Templates requiring updates:
+  ✅ .specify/templates/plan-template.md (no changes needed)
+  ✅ .specify/templates/spec-template.md (no changes needed)  
+  ✅ .specify/templates/tasks-template.md (no changes needed)
+  ✅ .specify/templates/commands/*.md (no changes needed)
+  ✅ README.md (no changes needed)
+Follow-up TODOs: None
+-->
+
 # Acto Clean Architecture Constitution
 
 ## Core Principles
@@ -174,6 +189,24 @@ project-root/
 - Integration tests for repository layer with real databases
 - End-to-end tests for critical user journeys
 
+### VII. Naming Conventions (NON-NEGOTIABLE)
+**Consistent naming across all layers and interfaces**
+
+**API Field Naming**:
+- All API request and response fields MUST use camelCase (first letter lowercase)
+- JSON tags MUST use camelCase format: `json:"fieldName"`
+- Examples: `userId`, `pointTypeId`, `createdAt`, `displayName`
+
+**Database Field Naming**:
+- All database columns MUST use snake_case format
+- Examples: `user_id`, `point_type_id`, `created_at`, `display_name`
+
+**Rationale**: 
+- API camelCase ensures consistency with JavaScript/frontend conventions
+- Database snake_case follows SQL naming best practices and improves readability
+- Clear separation between API and database naming prevents confusion
+- JSON serialization/deserialization handles the conversion automatically
+
 ## Architecture Standards
 
 ### Dependency Management
@@ -263,4 +296,4 @@ project-root/
 - Adapt patterns to project needs, not blindly follow dogma
 - Simplicity over complexity: YAGNI (You Aren't Gonna Need It)
 
-**Version**: 1.0.0 | **Ratified**: 2025-10-15 | **Last Amended**: 2025-10-15
+**Version**: 1.1.0 | **Ratified**: 2024-12-19 | **Last Amended**: 2024-12-19

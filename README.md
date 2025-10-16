@@ -50,14 +50,33 @@ Health check: `GET http://localhost:8080/health`
 OpenAPI: see `specs/001-/contracts/openapi.yaml`
 
 ## Library Mode (Use Cases)
-Import the module and wire repository interfaces with your own implementations or the provided ones under `internal/`.
+You can embed Acto into your Go app with a simple initialization API. Provide your `*sql.DB` and Redis client; the library wires default repositories and services.
 
-Example (pseudo):
+Quick start:
 ```go
-ptSvc := points.NewPointTypeService(ptRepo)
-balSvc := points.NewBalanceService(balRepo, rankingRepo, ptRepo)
-_ = balSvc.Credit(ctx, userID, "Gold", "Welcome bonus", 100)
+db, _ := sql.Open("mysql", os.Getenv("MYSQL_DSN"))
+rc := redis.NewClient(&redis.Options{Addr: os.Getenv("REDIS_ADDR")})
+
+library, err := lib.NewLibrary(lib.LibraryConfig{DB: db, Redis: rc})
+if err != nil { log.Fatal(err) }
+defer library.Close()
+
+services := library.GetServices()
+id, err := services.PointType.Create(ctx, "gold-points", "金币积分", "购物积分")
+if err != nil { log.Fatal(err) }
+_ = services.Balance.Credit(ctx, "user-1", "gold-points", "注册奖励", 100)
 ```
+
+Mount routes into your existing mux router:
+```go
+r := mux.NewRouter()
+_ = lib.RegisterGorillaMuxRoutes(r, library)
+http.ListenAndServe(":8080", r)
+```
+
+Notes:
+- Default repositories are used automatically; you may override any repository via `RepositoryConfig`.
+- JSON uses camelCase; database columns use snake_case.
 
 ## Development
 - Build: `go build ./...`

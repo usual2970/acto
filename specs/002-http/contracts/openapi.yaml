@@ -1,0 +1,328 @@
+openapi: 3.0.3
+info:
+  title: Acto Points System Library API
+  description: |
+    Enhanced library integration API for the Acto points system.
+    This API provides simplified initialization and configuration for integrating
+    the Acto points system into Go applications.
+  version: 1.0.0
+  contact:
+    name: Acto Points System
+    url: https://github.com/acto/acto
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: /api/v1
+    description: Acto Points System API
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Check the health of the library services
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+        "500":
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /config:
+    get:
+      summary: Get Library Configuration
+      description: Get the current library configuration
+      operationId: getConfig
+      tags:
+        - Configuration
+      responses:
+        "200":
+          description: Configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LibraryConfig"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /services:
+    get:
+      summary: Get Available Services
+      description: Get information about available services
+      operationId: getServices
+      tags:
+        - Services
+      responses:
+        "200":
+          description: Services information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServicesInfo"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    LibraryConfig:
+      type: object
+      description: Configuration for library initialization
+      properties:
+        db:
+          type: object
+          description: Database connection (not serialized)
+          nullable: true
+        redis:
+          type: object
+          description: Redis client (not serialized)
+          nullable: true
+        repositories:
+          $ref: "#/components/schemas/RepositoryConfig"
+        routes:
+          $ref: "#/components/schemas/RouteConfig"
+      required:
+        - db
+        - redis
+
+    RepositoryConfig:
+      type: object
+      description: Configuration for custom repository implementations
+      properties:
+        pointType:
+          type: object
+          description: Custom point type repository
+          nullable: true
+        balance:
+          type: object
+          description: Custom balance repository
+          nullable: true
+        ranking:
+          type: object
+          description: Custom ranking repository
+          nullable: true
+
+    RouteConfig:
+      type: object
+      description: Configuration for HTTP route integration
+      properties:
+        pathPrefix:
+          type: string
+          description: URL path prefix for Acto routes
+          default: "/api/v1"
+          example: "/api/v1"
+        middleware:
+          type: array
+          description: Custom middleware functions
+          items:
+            type: object
+          nullable: true
+        cors:
+          $ref: "#/components/schemas/CORSConfig"
+      required:
+        - pathPrefix
+
+    CORSConfig:
+      type: object
+      description: CORS configuration for HTTP routes
+      properties:
+        allowedOrigins:
+          type: array
+          description: Allowed origins
+          items:
+            type: string
+          default: ["*"]
+          example: ["*"]
+        allowedMethods:
+          type: array
+          description: Allowed HTTP methods
+          items:
+            type: string
+          default: ["GET", "POST", "PUT", "DELETE"]
+          example: ["GET", "POST", "PUT", "DELETE"]
+        allowedHeaders:
+          type: array
+          description: Allowed headers
+          items:
+            type: string
+          default: ["Content-Type", "Authorization"]
+          example: ["Content-Type", "Authorization"]
+        allowCredentials:
+          type: boolean
+          description: Allow credentials
+          default: false
+          example: false
+      required:
+        - allowedOrigins
+        - allowedMethods
+        - allowedHeaders
+        - allowCredentials
+
+    Services:
+      type: object
+      description: Container for all business services
+      properties:
+        pointType:
+          type: object
+          description: Point type service
+          nullable: true
+        balance:
+          type: object
+          description: Balance service
+          nullable: true
+        distribution:
+          type: object
+          description: Distribution service
+          nullable: true
+        redemption:
+          type: object
+          description: Redemption service
+          nullable: true
+
+    ServicesInfo:
+      type: object
+      description: Information about available services
+      properties:
+        services:
+          $ref: "#/components/schemas/Services"
+        repositories:
+          $ref: "#/components/schemas/RepositoryContainer"
+        status:
+          type: string
+          description: Overall service status
+          enum: [healthy, degraded, unhealthy]
+          example: healthy
+
+    RepositoryContainer:
+      type: object
+      description: Container for repository implementations
+      properties:
+        pointType:
+          type: object
+          description: Point type repository
+          nullable: true
+        balance:
+          type: object
+          description: Balance repository
+          nullable: true
+        ranking:
+          type: object
+          description: Ranking repository
+          nullable: true
+
+    HealthResponse:
+      type: object
+      description: Health check response
+      properties:
+        status:
+          type: string
+          description: Overall health status
+          enum: [healthy, degraded, unhealthy]
+          example: healthy
+        services:
+          type: object
+          description: Individual service health status
+          properties:
+            database:
+              type: string
+              enum: [healthy, unhealthy]
+              example: healthy
+            redis:
+              type: string
+              enum: [healthy, unhealthy]
+              example: healthy
+            repositories:
+              type: string
+              enum: [healthy, unhealthy]
+              example: healthy
+        timestamp:
+          type: integer
+          format: int64
+          description: Unix timestamp of health check
+          example: 1640995200
+      required:
+        - status
+        - services
+        - timestamp
+
+    ErrorResponse:
+      type: object
+      description: Error response
+      properties:
+        error:
+          type: object
+          description: Error details
+          properties:
+            type:
+              type: string
+              description: Error type
+              enum:
+                [
+                  connection,
+                  validation,
+                  configuration,
+                  repository,
+                  service,
+                  route,
+                ]
+              example: connection
+            message:
+              type: string
+              description: Human-readable error message
+              example: "Database connection failed"
+            code:
+              type: string
+              description: Error code
+              example: "DB_CONNECTION_FAILED"
+            context:
+              type: object
+              description: Additional error context
+              nullable: true
+        timestamp:
+          type: integer
+          format: int64
+          description: Unix timestamp of error
+          example: 1640995200
+        requestId:
+          type: string
+          description: Request ID for tracing
+          example: "req_123456789"
+      required:
+        - error
+        - timestamp
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication
+
+security:
+  - ApiKeyAuth: []
+
+tags:
+  - name: Health
+    description: Health check endpoints
+  - name: Configuration
+    description: Library configuration endpoints
+  - name: Services
+    description: Service information endpoints

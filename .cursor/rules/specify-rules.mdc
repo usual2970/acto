@@ -6,6 +6,8 @@ Auto-generated from all feature plans. Last updated: 2025-10-15
 - Go 1.22 (001-)
 - Go 1.20 (001-)
 - MySQL (primary system of record); Redis (rankings via ZSET) (001-)
+- Go 1.21+ (current project standard) (002-http)
+- MySQL database + Redis for caching/ranking (002-http)
 
 ## Project Structure
 ```
@@ -20,9 +22,9 @@ tests/
 Go 1.22: Follow standard conventions
 
 ## Recent Changes
+- 002-http: Added Go 1.21+ (current project standard)
 - 001-: Added Go 1.20
 - 001-: Added Go 1.20
-- 001-: Added Go 1.22
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

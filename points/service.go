@@ -32,6 +32,11 @@ type RankingRepository interface {
 	GetTop(ctx context.Context, pointTypeID string, start, stop int64) ([]string, error)
 }
 
+// RankingsService provides read-only ranking queries for delivery layer
+type RankingsService interface {
+	GetTop(ctx context.Context, pointTypeName string, limit, offset int) ([]string, error)
+}
+
 type RewardRepository interface {
 	CreateRule(ctx context.Context, rr d.RewardRule) (string, error)
 	ListRules(ctx context.Context, pointTypeID string) ([]d.RewardRule, error)

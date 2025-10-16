@@ -8,31 +8,18 @@ import (
 )
 
 type RankingsHandler struct {
-	ranking  uc.RankingRepository
-	pointTyp uc.PointTypeRepository
+	svc uc.RankingsService
 }
 
-func NewRankingsHandler(r uc.RankingRepository, pt uc.PointTypeRepository) *RankingsHandler {
-	return &RankingsHandler{ranking: r, pointTyp: pt}
+func NewRankingsHandler(svc uc.RankingsService) *RankingsHandler {
+	return &RankingsHandler{svc: svc}
 }
 
 func (h *RankingsHandler) Get(w http.ResponseWriter, r *http.Request) {
-	// Read pointTypeName and map to internal ID
 	ptName := r.URL.Query().Get("pointTypeName")
-	var ptID string
-	if ptName != "" && h.pointTyp != nil {
-		if pt, err := h.pointTyp.GetPointTypeByName(r.Context(), ptName); err == nil {
-			ptID = pt.ID
-		}
-	}
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
-	if limit <= 0 {
-		limit = 100
-	}
-	start := int64(offset)
-	stop := int64(offset + limit - 1)
-	users, err := h.ranking.GetTop(r.Context(), ptID, start, stop)
+	users, err := h.svc.GetTop(r.Context(), ptName, limit, offset)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

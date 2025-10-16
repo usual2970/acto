@@ -16,6 +16,31 @@ func NewDistributionService(rew RewardRepository, bal BalanceRepository, rank Ra
 	return &DistributionService{rewards: rew, balance: bal, ranking: rank, points: pts}
 }
 
+// rankingsService implements RankingsService using repositories.
+type rankingsService struct {
+	ranking RankingRepository
+	points  PointTypeRepository
+}
+
+func NewRankingsService(rank RankingRepository, pts PointTypeRepository) RankingsService {
+	return &rankingsService{ranking: rank, points: pts}
+}
+
+func (s *rankingsService) GetTop(ctx context.Context, pointTypeName string, limit, offset int) ([]string, error) {
+	var ptID string
+	if pointTypeName != "" && s.points != nil {
+		if pt, err := s.points.GetPointTypeByName(ctx, pointTypeName); err == nil && pt != nil {
+			ptID = pt.ID
+		}
+	}
+	if limit <= 0 {
+		limit = 100
+	}
+	start := int64(offset)
+	stop := int64(offset + limit - 1)
+	return s.ranking.GetTop(ctx, ptID, start, stop)
+}
+
 // Execute runs a distribution for a point type using current ranking top N and active rules.
 func (s *DistributionService) Execute(ctx context.Context, pointTypeName string, topN int) error {
 	pt, err := s.points.GetPointTypeByName(ctx, pointTypeName)
