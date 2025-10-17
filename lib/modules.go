@@ -1,4 +1,4 @@
-package container
+package lib
 
 import (
 	"database/sql"
@@ -14,26 +14,6 @@ import (
 	goRedis "github.com/redis/go-redis/v9"
 	"go.uber.org/dig"
 )
-
-func provideModules(c *dig.Container) error {
-	// Register all modules in order
-	if err := provideConfigModule(c); err != nil {
-		return err
-	}
-	if err := provideInfraModule(c); err != nil {
-		return err
-	}
-	if err := provideRepoModule(c); err != nil {
-		return err
-	}
-	if err := provideServiceModule(c); err != nil {
-		return err
-	}
-	if err := provideDeliveryModule(c); err != nil {
-		return err
-	}
-	return nil
-}
 
 // ConfigModule provides configuration
 func provideConfigModule(c *dig.Container) error {

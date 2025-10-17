@@ -21,9 +21,9 @@ type RouteRegistrar interface {
 }
 
 // RegisterRoutes registers built-in routes under the provided basePath using a generic registrar.
-func RegisterRoutes(reg RouteRegistrar, basePath string, library *Library) error {
+func RegisterRoutes(reg RouteRegistrar, basePath string) error {
 
-	svc, err := library.GetServices()
+	svc, err := GetServices()
 	if err != nil {
 		return fmt.Errorf("failed to get services: %w", err)
 	}
@@ -41,30 +41,10 @@ func RegisterRoutes(reg RouteRegistrar, basePath string, library *Library) error
 
 	// /health
 	reg.Handle(http.MethodGet, join("/health"), http.HandlerFunc(func(w httpResponseWriter, r httpRequest) {
-		if err := library.Health(); err != nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusInternalServerError)
-			_ = json.NewEncoder(w).Encode(map[string]any{
-				"status": "unhealthy",
-				"services": map[string]string{
-					"database":     "unhealthy",
-					"redis":        "unhealthy",
-					"repositories": "unhealthy",
-				},
-				"timestamp": time.Now().Unix(),
-			})
-			return
-		}
-		w.Header().Set("Content-Type", "application/json")
-		_ = json.NewEncoder(w).Encode(map[string]any{
-			"status": "healthy",
-			"services": map[string]string{
-				"database":     "healthy",
-				"redis":        "healthy",
-				"repositories": "healthy",
-			},
-			"timestamp": time.Now().Unix(),
-		})
+
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("ok"))
+
 	}))
 
 	// /config (redacted; only safe details)
@@ -106,14 +86,13 @@ func RegisterRoutes(reg RouteRegistrar, basePath string, library *Library) error
 func RegisterBusinessRoutes(
 	reg RouteRegistrar,
 	basePath string,
-	library *Library,
 	getParams func(*http.Request) map[string]string,
 	setVars func(*http.Request, map[string]string) *http.Request,
 ) error {
 	if basePath == "" {
 		basePath = "/api/v1"
 	}
-	svc, err := library.GetServices()
+	svc, err := GetServices()
 	if err != nil {
 		return fmt.Errorf("failed to get services: %w", err)
 	}

@@ -40,8 +40,7 @@ func main() {
 	redisClient := goRedis.NewClient(&goRedis.Options{Addr: cfg.RedisAddr})
 
 	// Create library via one-shot setup (hides internal DI)
-	library, err := lib.Setup(db, redisClient)
-	if err != nil {
+	if err := lib.Setup(db, redisClient); err != nil {
 		log.Fatalf("failed to init library: %v", err)
 	}
 
@@ -49,7 +48,7 @@ func main() {
 	adapter := muxAdapter{r: r}
 
 	// Register routes using DI container
-	if err := lib.RegisterRoutes(adapter, "/api/v1", library); err != nil {
+	if err := lib.RegisterRoutes(adapter, "/api/v1"); err != nil {
 		log.Fatalf("failed to register library routes: %v", err)
 	}
 
@@ -58,7 +57,7 @@ func main() {
 	setVars := func(req *http.Request, vars map[string]string) *http.Request { return mux.SetURLVars(req, vars) }
 
 	// Register business routes using DI container
-	if err := lib.RegisterBusinessRoutes(adapter, "/api/v1", library, getParams, setVars); err != nil {
+	if err := lib.RegisterBusinessRoutes(adapter, "/api/v1", getParams, setVars); err != nil {
 		log.Fatalf("failed to register business routes: %v", err)
 	}
 
