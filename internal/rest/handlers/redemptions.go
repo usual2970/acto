@@ -19,16 +19,16 @@ func (h *RedemptionsHandler) Redeem(w http.ResponseWriter, r *http.Request) {
 		RewardID string `json:"rewardId"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		WriteError(w, 1000, "bad request")
 		return
 	}
 	if req.UserID == "" || req.RewardID == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		WriteError(w, 1000, "missing userId or rewardId")
 		return
 	}
 	if err := h.svc.Redeem(r.Context(), req.UserID, req.RewardID); err != nil {
-		writeDomainError(w, err, nil)
+		writeDomainError(w, err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	WriteSuccess(w, nil)
 }

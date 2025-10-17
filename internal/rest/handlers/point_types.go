@@ -25,16 +25,15 @@ func (h *PointTypesHandler) Create(w http.ResponseWriter, r *http.Request) {
 		Description string `json:"description"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		WriteError(w, 1000, "bad request")
 		return
 	}
 	id, err := h.svc.Create(r.Context(), req.Name, req.DisplayName, req.Description)
 	if err != nil {
-		writeDomainError(w, err, nil)
+		writeDomainError(w, err)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]string{"id": id})
+	WriteSuccess(w, map[string]string{"id": id})
 }
 
 func (h *PointTypesHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -49,11 +48,10 @@ func (h *PointTypesHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 	res, err := h.svc.List(r.Context(), limit, offset)
 	if err != nil {
-		writeDomainError(w, err, nil)
+		writeDomainError(w, err)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(res)
+	WriteSuccess(w, res)
 }
 
 func (h *PointTypesHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -61,22 +59,22 @@ func (h *PointTypesHandler) Update(w http.ResponseWriter, r *http.Request) {
 	vars := pkg.GetPathVars(r)
 	name := vars["name"]
 	if name == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		WriteError(w, 1000, "missing name")
 		return
 	}
 
 	// 解析部分更新字段
 	var updates uc.UpdatePointTypeRequest
 	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		WriteError(w, 1000, "bad request")
 		return
 	}
 
 	if err := h.svc.Update(r.Context(), name, updates); err != nil {
-		writeDomainError(w, err, nil)
+		writeDomainError(w, err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	WriteSuccess(w, nil)
 }
 
 func (h *PointTypesHandler) Delete(w http.ResponseWriter, r *http.Request) {
@@ -84,13 +82,13 @@ func (h *PointTypesHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := pkg.GetPathVars(r)
 	name := vars["name"]
 	if name == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		WriteError(w, 1000, "missing name")
 		return
 	}
 
 	if err := h.svc.Delete(r.Context(), name); err != nil {
-		writeDomainError(w, err, nil)
+		writeDomainError(w, err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	WriteSuccess(w, nil)
 }

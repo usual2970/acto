@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"net/http"
+
+	"github.com/usual2970/acto/internal/rest/handlers"
 )
 
 type Role string
@@ -17,8 +19,7 @@ func RequireRole(required Role, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		role := r.Header.Get("X-Role")
 		if Role(role) != required {
-			w.WriteHeader(http.StatusForbidden)
-			_, _ = w.Write([]byte("forbidden"))
+			handlers.WriteError(w, 1004, "forbidden")
 			return
 		}
 		next.ServeHTTP(w, r)

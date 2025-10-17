@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -22,9 +21,8 @@ func (h *RankingsHandler) Get(w http.ResponseWriter, r *http.Request) {
 	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
 	users, err := h.svc.GetTop(r.Context(), ptName, limit, offset)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		writeDomainError(w, err)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{"items": users, "limit": limit, "offset": offset})
+	WriteSuccess(w, map[string]any{"items": users, "limit": limit, "offset": offset})
 }

@@ -19,15 +19,15 @@ func (h *DistributionsHandler) Execute(w http.ResponseWriter, r *http.Request) {
 		TopN          int    `json:"topN"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		WriteError(w, 1000, "bad request")
 		return
 	}
 	if req.TopN <= 0 {
 		req.TopN = 100
 	}
 	if err := h.svc.Execute(r.Context(), req.PointTypeName, req.TopN); err != nil {
-		writeDomainError(w, err, nil)
+		writeDomainError(w, err)
 		return
 	}
-	w.WriteHeader(http.StatusAccepted)
+	WriteSuccess(w, nil)
 }

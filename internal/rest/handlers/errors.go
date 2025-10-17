@@ -1,34 +1,24 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 
 	d "github.com/usual2970/acto/domain/points"
 )
 
-type errorResponse struct {
-	Code    string      `json:"code"`
-	Message string      `json:"message"`
-	Details interface{} `json:"details,omitempty"`
-}
-
-func writeDomainError(w http.ResponseWriter, err error, details interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	var status int
-	var code string
+func writeDomainError(w http.ResponseWriter, err error) {
+	// Map domain errors to numeric codes and human messages. HTTP status is
+	// always 200 per API contract; the envelope's Code signals success/failure.
 	switch err {
 	case d.ErrInsufficientBalance:
-		status, code = http.StatusConflict, "INSUFFICIENT_BALANCE"
+		WriteError(w, 1001, "insufficient balance")
 	case d.ErrPointTypeInUse:
-		status, code = http.StatusConflict, "CANNOT_DELETE_ACTIVE_POINT_TYPE"
+		WriteError(w, 1002, "point type in use")
 	case d.ErrRewardOutOfStock:
-		status, code = http.StatusConflict, "REWARD_OUT_OF_STOCK"
+		WriteError(w, 1003, "reward out of stock")
 	case d.ErrUnauthorizedOperation:
-		status, code = http.StatusForbidden, "FORBIDDEN"
+		WriteError(w, 1004, "forbidden")
 	default:
-		status, code = http.StatusInternalServerError, "INTERNAL_ERROR"
+		WriteError(w, 1500, "internal error")
 	}
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(errorResponse{Code: code, Message: err.Error(), Details: details})
 }

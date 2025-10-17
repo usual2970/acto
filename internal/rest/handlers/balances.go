@@ -24,14 +24,14 @@ func (h *BalancesHandler) Credit(w http.ResponseWriter, r *http.Request) {
 		Amount        int64  `json:"amount"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		WriteError(w, 1000, "bad request")
 		return
 	}
 	if err := h.svc.Credit(r.Context(), req.UserID, req.PointTypeName, req.Reason, req.Amount); err != nil {
-		writeDomainError(w, err, nil)
+		writeDomainError(w, err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	WriteSuccess(w, nil)
 }
 
 func (h *BalancesHandler) Debit(w http.ResponseWriter, r *http.Request) {
@@ -42,14 +42,14 @@ func (h *BalancesHandler) Debit(w http.ResponseWriter, r *http.Request) {
 		Amount        int64  `json:"amount"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		WriteError(w, 1000, "bad request")
 		return
 	}
 	if err := h.svc.Debit(r.Context(), req.UserID, req.PointTypeName, req.Reason, req.Amount); err != nil {
-		writeDomainError(w, err, nil)
+		writeDomainError(w, err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	WriteSuccess(w, nil)
 }
 
 func (h *BalancesHandler) ListTransactions(w http.ResponseWriter, r *http.Request) {
@@ -65,9 +65,8 @@ func (h *BalancesHandler) ListTransactions(w http.ResponseWriter, r *http.Reques
 	endTime, _ := strconv.ParseInt(r.URL.Query().Get("endTime"), 10, 64)
 	items, total, err := h.svc.ListTransactions(r.Context(), userID, pointTypeName, op, startTime, endTime, limit, offset)
 	if err != nil {
-		writeDomainError(w, err, nil)
+		writeDomainError(w, err)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{"items": items, "total": total, "limit": limit, "offset": offset})
+	WriteSuccess(w, map[string]any{"items": items, "total": total, "limit": limit, "offset": offset})
 }
