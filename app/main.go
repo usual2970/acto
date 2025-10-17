@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/usual2970/acto/internal/config"
-	restHandlers "github.com/usual2970/acto/internal/rest/handlers"
 	"github.com/usual2970/acto/lib"
+	"github.com/usual2970/acto/pkg"
 
 	"database/sql"
 	"net/http"
@@ -35,7 +35,7 @@ func (g ginAdapter) Handle(method string, path string, h http.Handler) {
 			params[p.Key] = p.Value
 		}
 		// inject path vars into request so handlers using GetPathVars work
-		reqWithVars := restHandlers.WithPathVars(c.Request, params)
+		reqWithVars := pkg.WithPathVars(c.Request, params)
 		h.ServeHTTP(c.Writer, reqWithVars)
 	}
 	g.r.Handle(method, ginPath, gin.HandlerFunc(ginHandler))

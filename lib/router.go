@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/usual2970/acto/internal/rest/handlers"
+	"github.com/usual2970/acto/pkg"
 )
 
 // http adapters
@@ -98,8 +99,8 @@ func RegisterBusinessRoutes(
 	// Use the framework-agnostic path-vars helpers by default. Routers/adapters
 	// should inject path params into the request context (e.g. using
 	// handlers.WithPathVars) so handlers can read them using GetPathVars.
-	getParams := handlers.GetPathVars
-	setVars := handlers.WithPathVars
+	getParams := pkg.GetPathVars
+	setVars := pkg.WithPathVars
 
 	wrap := func(h http.HandlerFunc, needsVars bool) http.HandlerFunc {
 		if !needsVars {

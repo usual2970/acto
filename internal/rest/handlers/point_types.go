@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/usual2970/acto/pkg"
 	uc "github.com/usual2970/acto/points"
 	// path vars are read via request context to stay framework-agnostic
 )
@@ -57,7 +58,7 @@ func (h *PointTypesHandler) List(w http.ResponseWriter, r *http.Request) {
 
 func (h *PointTypesHandler) Update(w http.ResponseWriter, r *http.Request) {
 	// 从URL路径中获取积分类型名称
-	vars := GetPathVars(r)
+	vars := pkg.GetPathVars(r)
 	name := vars["name"]
 	if name == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -80,7 +81,7 @@ func (h *PointTypesHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 func (h *PointTypesHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// 从URL路径中获取积分类型名称
-	vars := GetPathVars(r)
+	vars := pkg.GetPathVars(r)
 	name := vars["name"]
 	if name == "" {
 		w.WriteHeader(http.StatusBadRequest)

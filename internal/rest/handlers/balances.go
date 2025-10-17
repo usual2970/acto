@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/usual2970/acto/pkg"
 	uc "github.com/usual2970/acto/points"
 	// path vars are read via request context to stay framework-agnostic
 )
@@ -53,7 +54,7 @@ func (h *BalancesHandler) Debit(w http.ResponseWriter, r *http.Request) {
 
 func (h *BalancesHandler) ListTransactions(w http.ResponseWriter, r *http.Request) {
 	// Parse params
-	vars := GetPathVars(r)
+	vars := pkg.GetPathVars(r)
 	userID := vars["userId"]
 
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
