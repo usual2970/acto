@@ -21,9 +21,8 @@ func (r *PointTypeRepository) CreatePointType(ctx context.Context, pt d.PointTyp
 	if err != nil {
 		return "", err
 	}
-	var id string
-	_ = r.db.QueryRowContext(ctx, `SELECT id FROM point_types WHERE name=?`, pt.Name).Scan(&id)
-	return id, nil
+
+	return pt.Name, nil
 }
 
 func (r *PointTypeRepository) UpdatePointType(ctx context.Context, pt d.PointType) error {

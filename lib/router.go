@@ -1,12 +1,12 @@
 package lib
 
 import (
+	"acto/internal/rest/handlers"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
-
-	restHandlers "acto/internal/rest/handlers"
 )
 
 // http adapters
@@ -21,6 +21,12 @@ type RouteRegistrar interface {
 
 // RegisterRoutes registers built-in routes under the provided basePath using a generic registrar.
 func RegisterRoutes(reg RouteRegistrar, basePath string, library *Library) error {
+
+	svc, err := library.GetServices()
+	if err != nil {
+		return fmt.Errorf("failed to get services: %w", err)
+	}
+
 	if basePath == "" {
 		basePath = "/api/v1"
 	}
@@ -73,7 +79,6 @@ func RegisterRoutes(reg RouteRegistrar, basePath string, library *Library) error
 	// /services
 	reg.Handle(http.MethodGet, join("/services"), http.HandlerFunc(func(w httpResponseWriter, r httpRequest) {
 		w.Header().Set("Content-Type", "application/json")
-		svc := library.GetServices()
 		_ = json.NewEncoder(w).Encode(map[string]any{
 			"services": map[string]any{
 				"pointType": svc.PointTypeService != nil,
@@ -107,7 +112,10 @@ func RegisterBusinessRoutes(
 	if basePath == "" {
 		basePath = "/api/v1"
 	}
-	svc := library.GetServices()
+	svc, err := library.GetServices()
+	if err != nil {
+		return fmt.Errorf("failed to get services: %w", err)
+	}
 
 	wrap := func(h http.HandlerFunc, needsVars bool) http.HandlerFunc {
 		if !needsVars || getParams == nil || setVars == nil {
@@ -123,22 +131,22 @@ func RegisterBusinessRoutes(
 	}
 
 	if svc.PointTypeService != nil {
-		// Note: handlers expect path params to be injected via setVars where needed
-		pt := restHandlers.NewPointTypesHandler(svc.PointTypeService)
+		// Note: handlers expect mux-style vars for {name}
+		pt := handlers.NewPointTypesHandler(svc.PointTypeService)
 		reg.Handle(http.MethodPost, basePath+"/point-types", http.HandlerFunc(pt.Create))
 		reg.Handle(http.MethodGet, basePath+"/point-types", http.HandlerFunc(pt.List))
 		reg.Handle(http.MethodPatch, basePath+"/point-types/{name}", wrap(pt.Update, true))
 		reg.Handle(http.MethodDelete, basePath+"/point-types/{name}", wrap(pt.Delete, true))
 	}
 	if svc.BalanceService != nil {
-		b := restHandlers.NewBalancesHandler(svc.BalanceService)
+		b := handlers.NewBalancesHandler(svc.BalanceService)
 		reg.Handle(http.MethodPost, basePath+"/users/balance/credit", http.HandlerFunc(b.Credit))
 		reg.Handle(http.MethodPost, basePath+"/users/balance/debit", http.HandlerFunc(b.Debit))
 		reg.Handle(http.MethodGet, basePath+"/users/{userId}/transactions", wrap(b.ListTransactions, true))
 	}
 
 	if svc.RankingsService != nil {
-		rk := restHandlers.NewRankingsHandler(svc.RankingsService)
+		rk := handlers.NewRankingsHandler(svc.RankingsService)
 		reg.Handle(http.MethodGet, basePath+"/rankings", http.HandlerFunc(rk.Get))
 	}
 

@@ -22,8 +22,7 @@ type LibraryConfig struct {
 
 // Library represents the main library instance
 type Library struct {
-	config   LibraryConfig
-	services Services
+	config LibraryConfig
 }
 
 // hidden global container singleton (internal use only)
@@ -88,8 +87,8 @@ func WithProvide(constructor any) SetupOption {
 
 // SetupWithOptions builds the internal DI container with provided infra, then applies options
 // (such as custom repositories/services) before returning the Library. The container remains hidden.
-func SetupWithOptions(db *sql.DB, redis *goRedis.Client, options ...SetupOption) (*Library, error) {
-	c, err := container.BuildWithInfra(db, redis)
+func SetupWithOptions(options ...SetupOption) (*Library, error) {
+	c, err := container.BuildWithoutInfra()
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +120,7 @@ func (l *Library) Health() error {
 }
 
 // GetServices returns the services available in the library
-func (l *Library) GetServices() *Services {
+func (l *Library) GetServices() (*Services, error) {
 	c := getGlobalContainer()
 
 	var (
@@ -146,7 +145,7 @@ func (l *Library) GetServices() *Services {
 		rankingsService = resolvedRankingsService
 	})
 	if err != nil {
-		panic(err)
+		return nil, fmt.Errorf("failed to get services: %w", err)
 	}
 
 	return &Services{
@@ -155,7 +154,7 @@ func (l *Library) GetServices() *Services {
 		DistributionService: distributionSvc,
 		RedemptionService:   redemptionSvc,
 		RankingsService:     rankingsService,
-	}
+	}, nil
 }
 
 // Services holds references to all services

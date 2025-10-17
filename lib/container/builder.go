@@ -66,3 +66,23 @@ func BuildWithInfra(db *sql.DB, redis *goRedis.Client) (*dig.Container, error) {
 	}
 	return c, nil
 }
+
+func BuildWithoutInfra() (*dig.Container, error) {
+	c := dig.New()
+	if err := provideModules(c); err != nil {
+		return nil, fmt.Errorf("failed to provide modules: %w", err)
+	}
+
+	// Provide remaining modules (skip provideConfigModule/provideInfraModule)
+	if err := provideRepoModule(c); err != nil {
+		return nil, fmt.Errorf("provide repos: %w", err)
+	}
+	if err := provideServiceModule(c); err != nil {
+		return nil, fmt.Errorf("provide services: %w", err)
+	}
+	if err := provideDeliveryModule(c); err != nil {
+		return nil, fmt.Errorf("provide delivery: %w", err)
+	}
+
+	return c, nil
+}
