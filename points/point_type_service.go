@@ -1,9 +1,10 @@
 package points
 
 import (
-	d "acto/domain/points"
 	"context"
 	"strings"
+
+	d "github.com/usual2970/acto/domain/points"
 )
 
 // UpdatePointTypeRequest represents the request for updating a point type

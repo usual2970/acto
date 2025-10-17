@@ -18,7 +18,7 @@ This guide shows how to integrate the Acto points system into your Go applicatio
 ## Installation
 
 ```bash
-go get github.com/acto/acto
+go get github.com/github.com/usual2970/acto/acto
 ```
 
 ## Basic Usage
@@ -32,7 +32,7 @@ import (
     "database/sql"
     "log"
     
-    "acto/lib"
+    "github.com/usual2970/acto/lib"
     _ "github.com/go-sql-driver/mysql"
     "github.com/redis/go-redis/v9"
 )
@@ -80,7 +80,7 @@ package main
 import (
     "net/http"
     
-    "acto/lib"
+    "github.com/usual2970/acto/lib"
     "github.com/gorilla/mux"
 )
 
@@ -116,8 +116,8 @@ func main() {
 package main
 
 import (
-    "acto/lib"
-    "acto/points"
+    "github.com/usual2970/acto/lib"
+    "github.com/usual2970/acto/points"
 )
 
 // Custom point type repository
@@ -157,7 +157,7 @@ func main() {
 package main
 
 import (
-    "acto/lib"
+    "github.com/usual2970/acto/lib"
     "github.com/gorilla/mux"
 )
 
@@ -199,7 +199,7 @@ func main() {
 package main
 
 import (
-    "acto/lib"
+    "github.com/usual2970/acto/lib"
     "github.com/gin-gonic/gin"
     "github.com/labstack/echo/v4"
 )
@@ -240,7 +240,7 @@ func main() {
 package main
 
 import (
-    "acto/lib"
+    "github.com/usual2970/acto/lib"
     "errors"
 )
 
@@ -276,7 +276,7 @@ func main() {
 package main
 
 import (
-    "acto/lib"
+    "github.com/usual2970/acto/lib"
     "net/http"
 )
 
@@ -414,7 +414,7 @@ package main
 
 import (
     "testing"
-    "acto/lib"
+    "github.com/usual2970/acto/lib"
     "github.com/DATA-DOG/go-sqlmock"
     "github.com/alicebob/miniredis"
 )
@@ -484,7 +484,7 @@ router.PathPrefix("/api/v1").Handler(http.HandlerFunc(func(w http.ResponseWriter
 // Acto routes will conflict with existing routes
 // Use different path prefix
 err := lib.RegisterGorillaMuxRoutes(router, services, lib.RouteConfig{
-    PathPrefix: "/acto/api/v1",
+    PathPrefix: "/github.com/usual2970/acto/api/v1",
 })
 ```
 
@@ -494,7 +494,7 @@ err := lib.RegisterGorillaMuxRoutes(router, services, lib.RouteConfig{
 package main
 
 import (
-    "acto/lib"
+    "github.com/usual2970/acto/lib"
     "log"
 )
 
@@ -617,5 +617,5 @@ func main() {
 
 - **Documentation**: [Full API Documentation](./contracts/openapi.yaml)
 - **Examples**: [Usage Examples](../examples/)
-- **Issues**: [GitHub Issues](https://github.com/acto/acto/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/acto/acto/discussions)
+- **Issues**: [GitHub Issues](https://github.com/github.com/usual2970/acto/github.com/usual2970/acto/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/github.com/usual2970/acto/github.com/usual2970/acto/discussions)

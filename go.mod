@@ -1,4 +1,4 @@
-module acto
+module github.com/usual2970/acto
 
 go 1.20
 

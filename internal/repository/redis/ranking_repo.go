@@ -1,8 +1,9 @@
 package redis
 
 import (
-	uc "acto/points"
 	"context"
+
+	uc "github.com/usual2970/acto/points"
 
 	goRedis "github.com/redis/go-redis/v9"
 )

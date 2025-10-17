@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	uc "acto/points"
 	"encoding/json"
 	"net/http"
+
+	uc "github.com/usual2970/acto/points"
 )
 
 type DistributionsHandler struct{ svc *uc.DistributionService }

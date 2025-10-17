@@ -1,9 +1,10 @@
 package points
 
 import (
-	d "acto/domain/points"
 	"context"
 	"errors"
+
+	d "github.com/usual2970/acto/domain/points"
 )
 
 type RedemptionService struct {

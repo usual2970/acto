@@ -1,12 +1,13 @@
 package mysql
 
 import (
-	d "acto/domain/points"
-	uc "acto/points"
 	"context"
 	"database/sql"
 	"fmt"
 	"time"
+
+	d "github.com/usual2970/acto/domain/points"
+	uc "github.com/usual2970/acto/points"
 )
 
 type BalanceTxRepository struct {

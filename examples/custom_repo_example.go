@@ -1,9 +1,10 @@
 package examples
 
 import (
-	d "acto/domain/points"
-	uc "acto/points"
 	"context"
+
+	d "github.com/usual2970/acto/domain/points"
+	uc "github.com/usual2970/acto/points"
 )
 
 // CustomPointTypeRepo is an example override implementing PointTypeRepository.

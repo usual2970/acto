@@ -1,13 +1,14 @@
 package container
 
 import (
-	appcfg "acto/internal/config"
-	repoMysql "acto/internal/repository/mysql"
-	repoRedis "acto/internal/repository/redis"
-	restHandlers "acto/internal/rest/handlers"
-	"acto/points"
-	usecases "acto/points"
 	"database/sql"
+
+	appcfg "github.com/usual2970/acto/internal/config"
+	repoMysql "github.com/usual2970/acto/internal/repository/mysql"
+	repoRedis "github.com/usual2970/acto/internal/repository/redis"
+	restHandlers "github.com/usual2970/acto/internal/rest/handlers"
+	"github.com/usual2970/acto/points"
+	usecases "github.com/usual2970/acto/points"
 
 	_ "github.com/go-sql-driver/mysql"
 	goRedis "github.com/redis/go-redis/v9"

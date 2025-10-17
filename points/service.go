@@ -1,8 +1,9 @@
 package points
 
 import (
-	d "acto/domain/points"
 	"context"
+
+	d "github.com/usual2970/acto/domain/points"
 )
 
 // Repository interfaces declared at consumer side (use case layer)

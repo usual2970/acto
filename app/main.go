@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"acto/internal/config"
-	"acto/lib"
+	"github.com/usual2970/acto/internal/config"
+	"github.com/usual2970/acto/lib"
 
 	"database/sql"
 

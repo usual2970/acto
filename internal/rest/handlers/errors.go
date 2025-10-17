@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	d "acto/domain/points"
 	"encoding/json"
 	"net/http"
+
+	d "github.com/usual2970/acto/domain/points"
 )
 
 type errorResponse struct {

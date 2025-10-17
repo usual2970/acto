@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	uc "acto/points"
 	"encoding/json"
 	"net/http"
 	"strconv"
+
+	uc "github.com/usual2970/acto/points"
 )
 
 type RankingsHandler struct {

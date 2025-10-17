@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sync"
 
-	"acto/lib/container"
-	"acto/points"
+	"github.com/usual2970/acto/lib/container"
+	"github.com/usual2970/acto/points"
 
 	goRedis "github.com/redis/go-redis/v9"
 	"go.uber.org/dig"

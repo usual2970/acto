@@ -20,7 +20,7 @@ The project uses uber-go/dig for dependency injection with clear layer modules:
 - **DeliveryModule**: HTTP handlers
 
 ```go
-import "acto/lib/container"
+import "github.com/usual2970/acto/lib/container"
 
 // Build DI container
 c, err := container.Build()

@@ -12,7 +12,7 @@ import (
     "net/http/httptest"
     "testing"
 
-    "acto/lib"
+    "github.com/usual2970/acto/lib"
     sqlmock "github.com/DATA-DOG/go-sqlmock"
     miniredis "github.com/alicebob/miniredis/v2"
     goRedis "github.com/redis/go-redis/v9"

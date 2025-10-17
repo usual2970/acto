@@ -1,11 +1,12 @@
 package mysql
 
 import (
-	d "acto/domain/points"
-	uc "acto/points"
 	"context"
 	"database/sql"
 	"time"
+
+	d "github.com/usual2970/acto/domain/points"
+	uc "github.com/usual2970/acto/points"
 )
 
 type PointTypeRepository struct {
