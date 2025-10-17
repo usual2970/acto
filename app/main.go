@@ -2,35 +2,54 @@ package main
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/usual2970/acto/internal/config"
+	restHandlers "github.com/usual2970/acto/internal/rest/handlers"
 	"github.com/usual2970/acto/lib"
 
 	"database/sql"
+	"net/http"
+	"regexp"
 
+	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/gorilla/mux"
 	goRedis "github.com/redis/go-redis/v9"
 )
 
 // muxAdapter adapts *mux.Router to lib.RouteRegistrar without coupling lib to mux
-type muxAdapter struct{ r *mux.Router }
+// ginAdapter adapts gin.Engine to lib.RouteRegistrar while injecting path
+// variables into the *http.Request context so handlers can use GetPathVars.
+type ginAdapter struct{ r *gin.Engine }
 
-func (m muxAdapter) Handle(method string, path string, h http.Handler) {
-	m.r.Handle(path, h).Methods(method)
+var braceRe = regexp.MustCompile(`\{([^/}]+)\}`)
+
+func convertPath(path string) string {
+	return braceRe.ReplaceAllString(path, ":$1")
+}
+
+func (g ginAdapter) Handle(method string, path string, h http.Handler) {
+	ginPath := convertPath(path)
+	ginHandler := func(c *gin.Context) {
+		params := map[string]string{}
+		for _, p := range c.Params {
+			params[p.Key] = p.Value
+		}
+		// inject path vars into request so handlers using GetPathVars work
+		reqWithVars := restHandlers.WithPathVars(c.Request, params)
+		h.ServeHTTP(c.Writer, reqWithVars)
+	}
+	g.r.Handle(method, ginPath, gin.HandlerFunc(ginHandler))
 }
 
 func main() {
 	// Load config
 	cfg := config.Load()
 
-	// Create router
-	r := mux.NewRouter()
-	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
-	}).Methods(http.MethodGet)
+	// Create Gin router
+	r := gin.New()
+	r.GET("/health", func(c *gin.Context) {
+		c.String(200, "ok")
+	})
 
 	// Initialize shared connections
 	db, err := sql.Open("mysql", cfg.MySQLDSN)
@@ -44,25 +63,22 @@ func main() {
 		log.Fatalf("failed to init library: %v", err)
 	}
 
-	// Create registrar adapter (mux-specific, kept out of lib to remain framework-agnostic)
-	adapter := muxAdapter{r: r}
+	// Create registrar adapter for Gin
+	adapter := ginAdapter{r: r}
 
 	// Register routes using DI container
 	if err := lib.RegisterRoutes(adapter, "/api/v1"); err != nil {
 		log.Fatalf("failed to register library routes: %v", err)
 	}
 
-	// Framework-specific helpers for path params
-	getParams := func(req *http.Request) map[string]string { return mux.Vars(req) }
-	setVars := func(req *http.Request, vars map[string]string) *http.Request { return mux.SetURLVars(req, vars) }
-
-	// Register business routes using DI container
-	if err := lib.RegisterBusinessRoutes(adapter, "/api/v1", getParams, setVars); err != nil {
+	// With Gin adapter we inject path params into the request context,
+	// so call the simplified RegisterBusinessRoutes signature.
+	if err := lib.RegisterBusinessRoutes(adapter, "/api/v1"); err != nil {
 		log.Fatalf("failed to register business routes: %v", err)
 	}
 
 	log.Println("listening on " + cfg.HTTPAddr)
-	if err := http.ListenAndServe(cfg.HTTPAddr, r); err != nil {
+	if err := r.Run(cfg.HTTPAddr); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -6,8 +6,7 @@ import (
 	"strconv"
 
 	uc "github.com/usual2970/acto/points"
-
-	"github.com/gorilla/mux"
+	// path vars are read via request context to stay framework-agnostic
 )
 
 type PointTypesHandler struct {
@@ -58,7 +57,7 @@ func (h *PointTypesHandler) List(w http.ResponseWriter, r *http.Request) {
 
 func (h *PointTypesHandler) Update(w http.ResponseWriter, r *http.Request) {
 	// 从URL路径中获取积分类型名称
-	vars := mux.Vars(r)
+	vars := GetPathVars(r)
 	name := vars["name"]
 	if name == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -81,7 +80,7 @@ func (h *PointTypesHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 func (h *PointTypesHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// 从URL路径中获取积分类型名称
-	vars := mux.Vars(r)
+	vars := GetPathVars(r)
 	name := vars["name"]
 	if name == "" {
 		w.WriteHeader(http.StatusBadRequest)

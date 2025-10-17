@@ -86,8 +86,6 @@ func RegisterRoutes(reg RouteRegistrar, basePath string) error {
 func RegisterBusinessRoutes(
 	reg RouteRegistrar,
 	basePath string,
-	getParams func(*http.Request) map[string]string,
-	setVars func(*http.Request, map[string]string) *http.Request,
 ) error {
 	if basePath == "" {
 		basePath = "/api/v1"
@@ -97,8 +95,14 @@ func RegisterBusinessRoutes(
 		return fmt.Errorf("failed to get services: %w", err)
 	}
 
+	// Use the framework-agnostic path-vars helpers by default. Routers/adapters
+	// should inject path params into the request context (e.g. using
+	// handlers.WithPathVars) so handlers can read them using GetPathVars.
+	getParams := handlers.GetPathVars
+	setVars := handlers.WithPathVars
+
 	wrap := func(h http.HandlerFunc, needsVars bool) http.HandlerFunc {
-		if !needsVars || getParams == nil || setVars == nil {
+		if !needsVars {
 			return h
 		}
 		return func(w http.ResponseWriter, r *http.Request) {

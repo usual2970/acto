@@ -6,8 +6,7 @@ import (
 	"strconv"
 
 	uc "github.com/usual2970/acto/points"
-
-	"github.com/gorilla/mux"
+	// path vars are read via request context to stay framework-agnostic
 )
 
 type BalancesHandler struct {
@@ -54,7 +53,7 @@ func (h *BalancesHandler) Debit(w http.ResponseWriter, r *http.Request) {
 
 func (h *BalancesHandler) ListTransactions(w http.ResponseWriter, r *http.Request) {
 	// Parse params
-	vars := mux.Vars(r)
+	vars := GetPathVars(r)
 	userID := vars["userId"]
 
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
