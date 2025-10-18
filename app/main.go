@@ -41,6 +41,14 @@ func (g ginAdapter) Handle(method string, path string, h http.Handler) {
 	g.r.Handle(method, ginPath, gin.HandlerFunc(ginHandler))
 }
 
+func (g ginAdapter) NoRoute(h http.Handler) {
+	ginHandler := func(c *gin.Context) {
+		// pass through request without modifying path vars
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+	g.r.NoRoute(gin.HandlerFunc(ginHandler))
+}
+
 func main() {
 	// Load config
 	cfg := config.Load()
@@ -66,7 +74,7 @@ func main() {
 	// Create registrar adapter for Gin
 	adapter := ginAdapter{r: r}
 
-	// Register routes using DI container
+	// Register API routes first (specific routes)
 	if err := lib.RegisterRoutes(adapter, "/api/v1"); err != nil {
 		log.Fatalf("failed to register library routes: %v", err)
 	}
@@ -75,6 +83,11 @@ func main() {
 	// so call the simplified RegisterBusinessRoutes signature.
 	if err := lib.RegisterBusinessRoutes(adapter, "/api/v1"); err != nil {
 		log.Fatalf("failed to register business routes: %v", err)
+	}
+
+	// Register UI routes last (catch-all route must be last in Gin)
+	if err := lib.RegisterUIRoutes(adapter); err != nil {
+		log.Fatalf("failed to register ui routes: %v", err)
 	}
 
 	log.Println("listening on " + cfg.HTTPAddr)
