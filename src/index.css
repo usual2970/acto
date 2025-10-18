@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 220 17% 97%;
+    --foreground: 234 16% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 234 16% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 234 16% 15%;
+
+    --primary: 252 84% 60%;
+    --primary-foreground: 0 0% 100%;
+    
+    --primary-light: 252 84% 70%;
+    --primary-dark: 252 84% 50%;
+
+    --secondary: 217 91% 60%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 280 85% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 252 84% 60%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 234 16% 15%;
+    --sidebar-foreground: 220 17% 97%;
+    --sidebar-primary: 252 84% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 234 14% 22%;
+    --sidebar-accent-foreground: 220 17% 97%;
+    --sidebar-border: 234 14% 22%;
+    --sidebar-ring: 252 84% 60%;
+
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(252 84% 60%) 0%, hsl(280 85% 60%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(252 84% 60%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(142 76% 46%) 100%);
+    
+    /* Custom shadows */
+    --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-glow: 0 0 20px rgba(124, 58, 237, 0.3);
+
+    /* Transitions */
+    --transition-base: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
