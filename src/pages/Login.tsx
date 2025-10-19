@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,28 +6,56 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Coins } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/store/authStore";
+import { authApi } from "@/services/api";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login, isAuthenticated } = useAuthStore();
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    // 模拟登录
-    if (email && password) {
-      toast({
-        title: "登录成功",
-        description: "欢迎回到积分平台管理后台",
-      });
+  useEffect(() => {
+    if (isAuthenticated) {
       navigate("/");
-    } else {
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
       toast({
         title: "登录失败",
         description: "请输入邮箱和密码",
         variant: "destructive",
       });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response: any = await authApi.login({ email, password });
+      
+      // 保存登录状态
+      login(response.user, response.token);
+      
+      toast({
+        title: "登录成功",
+        description: "欢迎回到积分平台管理后台",
+      });
+      
+      navigate("/");
+    } catch (error: any) {
+      toast({
+        title: "登录失败",
+        description: error.response?.data?.message || "邮箱或密码错误",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,8 +95,12 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <Button type="submit" className="w-full bg-gradient-primary hover:opacity-90 transition-opacity">
-              登录
+            <Button 
+              type="submit" 
+              className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
+              disabled={loading}
+            >
+              {loading ? "登录中..." : "登录"}
             </Button>
           </form>
         </CardContent>

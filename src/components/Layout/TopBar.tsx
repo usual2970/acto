@@ -11,12 +11,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthStore } from "@/store/authStore";
 
 export function TopBar() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const logout = useAuthStore((state) => state.logout);
 
   const handleLogout = () => {
+    logout();
     toast({
       title: "已登出",
       description: "您已成功登出系统",
