@@ -3,10 +3,12 @@ package lib
 import (
 	"database/sql"
 
+	authUsecase "github.com/usual2970/acto/auth"
 	appcfg "github.com/usual2970/acto/internal/config"
 	repoMysql "github.com/usual2970/acto/internal/repository/mysql"
 	repoRedis "github.com/usual2970/acto/internal/repository/redis"
-	restHandlers "github.com/usual2970/acto/internal/rest/handlers"
+	adminHandlers "github.com/usual2970/acto/internal/rest/handlers/admin"
+	apiHandlers "github.com/usual2970/acto/internal/rest/handlers/api"
 	"github.com/usual2970/acto/points"
 	usecases "github.com/usual2970/acto/points"
 
@@ -66,6 +68,9 @@ func provideServiceModule(c *dig.Container) error {
 		func() error { return c.Provide(usecases.NewDistributionService) },
 		func() error { return c.Provide(usecases.NewRedemptionService) },
 		func() error { return c.Provide(usecases.NewRankingsService) },
+
+		// admin services can be added here
+		func() error { return c.Provide(authUsecase.NewAuthService) },
 	}
 
 	for _, provider := range providers {
@@ -79,11 +84,13 @@ func provideServiceModule(c *dig.Container) error {
 // DeliveryModule provides HTTP handlers
 func provideDeliveryModule(c *dig.Container) error {
 	providers := []func() error{
-		func() error { return c.Provide(restHandlers.NewPointTypesHandler) },
-		func() error { return c.Provide(restHandlers.NewBalancesHandler) },
-		func() error { return c.Provide(restHandlers.NewDistributionsHandler) },
-		func() error { return c.Provide(restHandlers.NewRedemptionsHandler) },
-		func() error { return c.Provide(restHandlers.NewRankingsHandler) },
+		func() error { return c.Provide(apiHandlers.NewPointTypesHandler) },
+		func() error { return c.Provide(apiHandlers.NewBalancesHandler) },
+		func() error { return c.Provide(apiHandlers.NewDistributionsHandler) },
+		func() error { return c.Provide(apiHandlers.NewRedemptionsHandler) },
+		func() error { return c.Provide(apiHandlers.NewRankingsHandler) },
+
+		func() error { return c.Provide(adminHandlers.NewAuthHandler) },
 	}
 
 	for _, provider := range providers {

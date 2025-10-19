@@ -16,62 +16,62 @@ func NewBalanceService(repo BalanceRepository, ranking RankingRepository, pts Po
 	return &BalanceService{repo: repo, ranking: ranking, pointTypes: pts}
 }
 
-func (s *BalanceService) Credit(ctx context.Context, userID, pointTypeName, reason string, amount int64) error {
-	if amount <= 0 {
+func (s *BalanceService) Credit(ctx context.Context, req BalanceCreditRequest) error {
+	if req.Amount <= 0 {
 		return nil
 	}
-	pt, err := s.pointTypes.GetPointTypeByName(ctx, pointTypeName)
+	pt, err := s.pointTypes.GetPointTypeByName(ctx, req.PointTypeName)
 	if err != nil {
 		return err
 	}
 	return s.repo.WithTx(ctx, func(ctx context.Context) error {
-		ub, err := s.repo.GetUserBalanceForUpdate(ctx, userID, pt.ID)
+		ub, err := s.repo.GetUserBalanceForUpdate(ctx, req.UserID, pt.ID)
 		if err != nil {
 			return err
 		}
 		before := ub.Balance
-		ub.Balance += amount
+		ub.Balance += req.Amount
 		if err := s.repo.UpsertUserBalance(ctx, *ub); err != nil {
 			return err
 		}
-		_, err = s.repo.InsertTransaction(ctx, d.Transaction{UserID: userID, PointTypeID: pt.ID, Amount: amount, Type: d.TransactionCredit, Reason: reason, Before: before, After: ub.Balance})
+		_, err = s.repo.InsertTransaction(ctx, d.Transaction{UserID: req.UserID, PointTypeID: pt.ID, Amount: req.Amount, Type: d.TransactionCredit, Reason: req.Reason, Before: before, After: ub.Balance})
 		if err != nil {
 			return err
 		}
 		if s.ranking != nil {
-			_ = s.ranking.UpdateUserScore(ctx, pt.ID, userID, ub.Balance)
+			_ = s.ranking.UpdateUserScore(ctx, pt.ID, req.UserID, ub.Balance)
 		}
 		return nil
 	})
 }
 
-func (s *BalanceService) Debit(ctx context.Context, userID, pointTypeName, reason string, amount int64) error {
-	if amount <= 0 {
+func (s *BalanceService) Debit(ctx context.Context, req BalanceDebitRequest) error {
+	if req.Amount <= 0 {
 		return nil
 	}
-	pt, err := s.pointTypes.GetPointTypeByName(ctx, pointTypeName)
+	pt, err := s.pointTypes.GetPointTypeByName(ctx, req.PointTypeName)
 	if err != nil {
 		return err
 	}
 	return s.repo.WithTx(ctx, func(ctx context.Context) error {
-		ub, err := s.repo.GetUserBalanceForUpdate(ctx, userID, pt.ID)
+		ub, err := s.repo.GetUserBalanceForUpdate(ctx, req.UserID, pt.ID)
 		if err != nil {
 			return err
 		}
-		if ub.Balance < amount {
+		if ub.Balance < req.Amount {
 			return d.ErrInsufficientBalance
 		}
 		before := ub.Balance
-		ub.Balance -= amount
+		ub.Balance -= req.Amount
 		if err := s.repo.UpsertUserBalance(ctx, *ub); err != nil {
 			return err
 		}
-		_, err = s.repo.InsertTransaction(ctx, d.Transaction{UserID: userID, PointTypeID: pt.ID, Amount: amount, Type: d.TransactionDebit, Reason: reason, Before: before, After: ub.Balance})
+		_, err = s.repo.InsertTransaction(ctx, d.Transaction{UserID: req.UserID, PointTypeID: pt.ID, Amount: req.Amount, Type: d.TransactionDebit, Reason: req.Reason, Before: before, After: ub.Balance})
 		if err != nil {
 			return err
 		}
 		if s.ranking != nil {
-			_ = s.ranking.UpdateUserScore(ctx, pt.ID, userID, ub.Balance)
+			_ = s.ranking.UpdateUserScore(ctx, pt.ID, req.UserID, ub.Balance)
 		}
 		return nil
 	})

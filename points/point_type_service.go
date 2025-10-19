@@ -7,13 +7,6 @@ import (
 	d "github.com/usual2970/acto/domain/points"
 )
 
-// UpdatePointTypeRequest represents the request for updating a point type
-type UpdatePointTypeRequest struct {
-	DisplayName *string `json:"displayName,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Enabled     *bool   `json:"enabled,omitempty"`
-}
-
 type PointTypeService struct {
 	repo PointTypeRepository
 }
@@ -22,20 +15,20 @@ func NewPointTypeService(repo PointTypeRepository) *PointTypeService {
 	return &PointTypeService{repo: repo}
 }
 
-func (s *PointTypeService) Create(ctx context.Context, name, displayName, description string) (string, error) {
-	name = strings.TrimSpace(name)
+func (s *PointTypeService) Create(ctx context.Context, req PointTypeCreateRequest) (string, error) {
+	name := strings.TrimSpace(req.Name)
 	if name == "" {
 		return "", d.ErrDuplicatePointTypeName
 	}
 	return s.repo.CreatePointType(ctx, d.PointType{
 		Name:        name,
-		DisplayName: displayName,
-		Description: description,
+		DisplayName: strings.TrimSpace(req.DisplayName),
+		Description: strings.TrimSpace(req.Description),
 		Enabled:     true,
 	})
 }
 
-func (s *PointTypeService) Update(ctx context.Context, name string, updates UpdatePointTypeRequest) error {
+func (s *PointTypeService) Update(ctx context.Context, name string, updates PointTypeUpdateRequest) error {
 	// 首先验证积分类型是否存在
 	existing, err := s.repo.GetPointTypeByName(ctx, name)
 	if err != nil {

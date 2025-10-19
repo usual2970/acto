@@ -1,11 +1,12 @@
-package handlers
+package admin
 
 import (
 	"encoding/json"
 	"net/http"
 	"strconv"
 
-	"github.com/usual2970/acto/pkg"
+	"github.com/usual2970/acto/internal/rest/handlers"
+	actoHttp "github.com/usual2970/acto/pkg/http"
 	uc "github.com/usual2970/acto/points"
 	// path vars are read via request context to stay framework-agnostic
 )
@@ -19,21 +20,17 @@ func NewPointTypesHandler(svc *uc.PointTypeService) *PointTypesHandler {
 }
 
 func (h *PointTypesHandler) Create(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		Name        string `json:"name"`
-		DisplayName string `json:"displayName"`
-		Description string `json:"description"`
-	}
+	var req uc.PointTypeCreateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		WriteError(w, 1000, "bad request")
+		handlers.WriteError(w, 1000, "bad request")
 		return
 	}
-	id, err := h.svc.Create(r.Context(), req.Name, req.DisplayName, req.Description)
+	id, err := h.svc.Create(r.Context(), req)
 	if err != nil {
-		writeDomainError(w, err)
+		handlers.WriteDomainError(w, err)
 		return
 	}
-	WriteSuccess(w, map[string]string{"id": id})
+	handlers.WriteSuccess(w, map[string]string{"id": id})
 }
 
 func (h *PointTypesHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -48,47 +45,47 @@ func (h *PointTypesHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 	res, err := h.svc.List(r.Context(), limit, offset)
 	if err != nil {
-		writeDomainError(w, err)
+		handlers.WriteDomainError(w, err)
 		return
 	}
-	WriteSuccess(w, res)
+	handlers.WriteSuccess(w, res)
 }
 
 func (h *PointTypesHandler) Update(w http.ResponseWriter, r *http.Request) {
 	// 从URL路径中获取积分类型名称
-	vars := pkg.GetPathVars(r)
+	vars := actoHttp.GetPathVars(r)
 	name := vars["name"]
 	if name == "" {
-		WriteError(w, 1000, "missing name")
+		handlers.WriteError(w, 1000, "missing name")
 		return
 	}
 
 	// 解析部分更新字段
-	var updates uc.UpdatePointTypeRequest
+	var updates uc.PointTypeUpdateRequest
 	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
-		WriteError(w, 1000, "bad request")
+		handlers.WriteError(w, 1000, "bad request")
 		return
 	}
 
 	if err := h.svc.Update(r.Context(), name, updates); err != nil {
-		writeDomainError(w, err)
+		handlers.WriteDomainError(w, err)
 		return
 	}
-	WriteSuccess(w, nil)
+	handlers.WriteSuccess(w, nil)
 }
 
 func (h *PointTypesHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	// 从URL路径中获取积分类型名称
-	vars := pkg.GetPathVars(r)
+	vars := actoHttp.GetPathVars(r)
 	name := vars["name"]
 	if name == "" {
-		WriteError(w, 1000, "missing name")
+		handlers.WriteError(w, 1000, "missing name")
 		return
 	}
 
 	if err := h.svc.Delete(r.Context(), name); err != nil {
-		writeDomainError(w, err)
+		handlers.WriteDomainError(w, err)
 		return
 	}
-	WriteSuccess(w, nil)
+	handlers.WriteSuccess(w, nil)
 }

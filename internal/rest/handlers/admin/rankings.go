@@ -1,9 +1,10 @@
-package handlers
+package admin
 
 import (
 	"net/http"
 	"strconv"
 
+	"github.com/usual2970/acto/internal/rest/handlers"
 	uc "github.com/usual2970/acto/points"
 )
 
@@ -21,8 +22,8 @@ func (h *RankingsHandler) Get(w http.ResponseWriter, r *http.Request) {
 	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
 	users, err := h.svc.GetTop(r.Context(), ptName, limit, offset)
 	if err != nil {
-		writeDomainError(w, err)
+		handlers.WriteDomainError(w, err)
 		return
 	}
-	WriteSuccess(w, map[string]any{"items": users, "limit": limit, "offset": offset})
+	handlers.WriteSuccess(w, map[string]any{"items": users, "limit": limit, "offset": offset})
 }

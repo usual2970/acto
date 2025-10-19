@@ -1,9 +1,10 @@
-package handlers
+package admin
 
 import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/usual2970/acto/internal/rest/handlers"
 	uc "github.com/usual2970/acto/points"
 )
 
@@ -14,21 +15,18 @@ func NewRedemptionsHandler(svc *uc.RedemptionService) *RedemptionsHandler {
 }
 
 func (h *RedemptionsHandler) Redeem(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		UserID   string `json:"userId"`
-		RewardID string `json:"rewardId"`
-	}
+	var req uc.RedemptionRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		WriteError(w, 1000, "bad request")
+		handlers.WriteError(w, 1000, "bad request")
 		return
 	}
 	if req.UserID == "" || req.RewardID == "" {
-		WriteError(w, 1000, "missing userId or rewardId")
+		handlers.WriteError(w, 1000, "missing userId or rewardId")
 		return
 	}
-	if err := h.svc.Redeem(r.Context(), req.UserID, req.RewardID); err != nil {
-		writeDomainError(w, err)
+	if err := h.svc.Redeem(r.Context(), req); err != nil {
+		handlers.WriteDomainError(w, err)
 		return
 	}
-	WriteSuccess(w, nil)
+	handlers.WriteSuccess(w, nil)
 }

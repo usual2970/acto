@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/usual2970/acto/auth"
 	"github.com/usual2970/acto/points"
 
 	goRedis "github.com/redis/go-redis/v9"
@@ -135,6 +136,7 @@ type Services struct {
 	DistributionService *points.DistributionService
 	RedemptionService   *points.RedemptionService
 	RankingsService     points.RankingsService
+	AuthService         *auth.AuthService
 }
 
 // RepositoryOverrides enables injecting custom repository implementations without exposing DI.
@@ -155,6 +157,8 @@ func GetServices() (*Services, error) {
 		distributionSvc *points.DistributionService,
 		redemptionSvc *points.RedemptionService,
 		rankingsSvc points.RankingsService,
+
+		authSvc *auth.AuthService,
 	) {
 		svc = Services{
 			PointTypeService:    pointTypeSvc,
@@ -162,6 +166,7 @@ func GetServices() (*Services, error) {
 			DistributionService: distributionSvc,
 			RedemptionService:   redemptionSvc,
 			RankingsService:     rankingsSvc,
+			AuthService:         authSvc,
 		}
 	})
 	if err != nil {

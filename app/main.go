@@ -5,7 +5,7 @@ import (
 
 	"github.com/usual2970/acto/internal/config"
 	"github.com/usual2970/acto/lib"
-	"github.com/usual2970/acto/pkg"
+	actoHttp "github.com/usual2970/acto/pkg/http"
 
 	"database/sql"
 	"net/http"
@@ -35,7 +35,7 @@ func (g ginAdapter) Handle(method string, path string, h http.Handler) {
 			params[p.Key] = p.Value
 		}
 		// inject path vars into request so handlers using GetPathVars work
-		reqWithVars := pkg.WithPathVars(c.Request, params)
+		reqWithVars := actoHttp.WithPathVars(c.Request, params)
 		h.ServeHTTP(c.Writer, reqWithVars)
 	}
 	g.r.Handle(method, ginPath, gin.HandlerFunc(ginHandler))
@@ -80,9 +80,14 @@ func main() {
 	}
 
 	// With Gin adapter we inject path params into the request context,
-	// so call the simplified RegisterBusinessRoutes signature.
-	if err := lib.RegisterBusinessRoutes(adapter, "/api/v1"); err != nil {
-		log.Fatalf("failed to register business routes: %v", err)
+	// so call the simplified RegisterApiRoutes signature.
+	if err := lib.RegisterApiRoutes(adapter, "/api/v1"); err != nil {
+		log.Fatalf("failed to register api routes: %v", err)
+	}
+
+	// Register admin routes
+	if err := lib.RegisterAdminRoutes(adapter, "/admin/v1"); err != nil {
+		log.Fatalf("failed to register admin routes: %v", err)
 	}
 
 	// Register UI routes last (catch-all route must be last in Gin)

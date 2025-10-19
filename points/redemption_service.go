@@ -17,8 +17,8 @@ func NewRedemptionService(rew RedemptionRepository, bal BalanceRepository) *Rede
 }
 
 // Redeem performs a redemption by deducting required point type costs and creating a record.
-func (s *RedemptionService) Redeem(ctx context.Context, userID, rewardID string) error {
-	reward, err := s.rewards.GetRewardByID(ctx, rewardID)
+func (s *RedemptionService) Redeem(ctx context.Context, req RedemptionRequest) error {
+	reward, err := s.rewards.GetRewardByID(ctx, req.RewardID)
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func (s *RedemptionService) Redeem(ctx context.Context, userID, rewardID string)
 	return s.balance.WithTx(ctx, func(ctx context.Context) error {
 		// Check all balances first
 		for ptID, cost := range reward.Costs {
-			ub, err := s.balance.GetUserBalanceForUpdate(ctx, userID, ptID)
+			ub, err := s.balance.GetUserBalanceForUpdate(ctx, req.UserID, ptID)
 			if err != nil {
 				return err
 			}
@@ -42,7 +42,7 @@ func (s *RedemptionService) Redeem(ctx context.Context, userID, rewardID string)
 		}
 		// Deduct for each cost
 		for ptID, cost := range reward.Costs {
-			ub, err := s.balance.GetUserBalanceForUpdate(ctx, userID, ptID)
+			ub, err := s.balance.GetUserBalanceForUpdate(ctx, req.UserID, ptID)
 			if err != nil {
 				return err
 			}
@@ -51,15 +51,15 @@ func (s *RedemptionService) Redeem(ctx context.Context, userID, rewardID string)
 			if err := s.balance.UpsertUserBalance(ctx, *ub); err != nil {
 				return err
 			}
-			if _, err := s.balance.InsertTransaction(ctx, d.Transaction{UserID: userID, PointTypeID: ptID, Amount: cost, Type: d.TransactionDebit, Reason: "redemption", Before: before, After: ub.Balance}); err != nil {
+			if _, err := s.balance.InsertTransaction(ctx, d.Transaction{UserID: req.UserID, PointTypeID: ptID, Amount: cost, Type: d.TransactionDebit, Reason: "redemption", Before: before, After: ub.Balance}); err != nil {
 				return err
 			}
 		}
 		// Create record (note: inventory decrement not in same tx due to different repo)
-		if err := s.rewards.DecrementInventory(ctx, rewardID, 1); err != nil {
+		if err := s.rewards.DecrementInventory(ctx, req.RewardID, 1); err != nil {
 			return err
 		}
-		if _, err := s.rewards.CreateRedemptionRecord(ctx, d.RedemptionRecord{UserID: userID, RewardID: rewardID, Status: d.RedemptionCompleted}); err != nil {
+		if _, err := s.rewards.CreateRedemptionRecord(ctx, d.RedemptionRecord{UserID: req.UserID, RewardID: req.RewardID, Status: d.RedemptionCompleted}); err != nil {
 			return err
 		}
 		return nil

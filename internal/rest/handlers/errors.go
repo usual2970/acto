@@ -6,7 +6,7 @@ import (
 	d "github.com/usual2970/acto/domain/points"
 )
 
-func writeDomainError(w http.ResponseWriter, err error) {
+func WriteDomainError(w http.ResponseWriter, err error) {
 	// Map domain errors to numeric codes and human messages. HTTP status is
 	// always 200 per API contract; the envelope's Code signals success/failure.
 	switch err {

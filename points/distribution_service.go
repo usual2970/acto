@@ -43,8 +43,8 @@ func (s *rankingsService) GetTop(ctx context.Context, pointTypeName string, limi
 }
 
 // Execute runs a distribution for a point type using current ranking top N and active rules.
-func (s *DistributionService) Execute(ctx context.Context, pointTypeName string, topN int) error {
-	pt, err := s.points.GetPointTypeByName(ctx, pointTypeName)
+func (s *DistributionService) Execute(ctx context.Context, req DistirbutionsExecuteRequest) error {
+	pt, err := s.points.GetPointTypeByName(ctx, req.PointTypeName)
 	if err != nil {
 		return err
 	}
@@ -56,7 +56,7 @@ func (s *DistributionService) Execute(ctx context.Context, pointTypeName string,
 	if len(rules) == 0 {
 		return nil
 	}
-	users, err := s.ranking.GetTop(ctx, pointTypeID, 0, int64(topN-1))
+	users, err := s.ranking.GetTop(ctx, pointTypeID, 0, int64(req.TopN-1))
 	if err != nil {
 		return err
 	}

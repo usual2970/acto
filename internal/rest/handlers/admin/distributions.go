@@ -1,9 +1,10 @@
-package handlers
+package admin
 
 import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/usual2970/acto/internal/rest/handlers"
 	uc "github.com/usual2970/acto/points"
 )
 
@@ -14,20 +15,17 @@ func NewDistributionsHandler(svc *uc.DistributionService) *DistributionsHandler 
 }
 
 func (h *DistributionsHandler) Execute(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		PointTypeName string `json:"pointTypeName"`
-		TopN          int    `json:"topN"`
-	}
+	var req uc.DistirbutionsExecuteRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		WriteError(w, 1000, "bad request")
+		handlers.WriteError(w, 1000, "bad request")
 		return
 	}
 	if req.TopN <= 0 {
 		req.TopN = 100
 	}
-	if err := h.svc.Execute(r.Context(), req.PointTypeName, req.TopN); err != nil {
-		writeDomainError(w, err)
+	if err := h.svc.Execute(r.Context(), req); err != nil {
+		handlers.WriteDomainError(w, err)
 		return
 	}
-	WriteSuccess(w, nil)
+	handlers.WriteSuccess(w, nil)
 }
