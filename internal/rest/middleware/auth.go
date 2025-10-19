@@ -7,9 +7,13 @@ import (
 	jwt "github.com/golang-jwt/jwt/v5"
 	"github.com/usual2970/acto/internal/config"
 	"github.com/usual2970/acto/internal/rest/handlers"
+	actoHttp "github.com/usual2970/acto/pkg/http"
 )
 
+// ...已迁移到 pkg/http/user.go ...
+
 // RequireAdmin validates Authorization: Bearer {token} JWT and ensures role=admin.
+// 认证成功后将用户信息写入 context，供后续 handler 使用。
 func RequireAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authz := r.Header.Get("Authorization")
@@ -43,10 +47,22 @@ func RequireAdmin(next http.Handler) http.Handler {
 				return
 			}
 		}
-		if role, _ := claims["role"].(string); role != "admin" {
+		role, _ := claims["role"].(string)
+		if role != "admin" {
 			handlers.WriteError(w, 1004, "forbidden")
 			return
 		}
+		username, _ := claims["sub"].(string)
+		// 将用户信息写入 context
+		user := &actoHttp.UserInfo{
+			Username: username,
+			Role:     role,
+			Claims:   map[string]any{},
+		}
+		for k, v := range claims {
+			user.Claims[k] = v
+		}
+		r = r.WithContext(actoHttp.WithUserInfo(r.Context(), user))
 		next.ServeHTTP(w, r)
 	})
 }
