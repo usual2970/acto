@@ -25,7 +25,7 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!email || !password) {
       toast({
         title: "登录失败",
@@ -37,16 +37,17 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const response: any = await authApi.login({ email, password });
-      
+      const response = await authApi.login({ username: email, password });
+      console.log("Login response:", response);
+
       // 保存登录状态
-      login(response.user, response.token);
-      
+      login({ email: email }, response.data.token);
+
       toast({
         title: "登录成功",
         description: "欢迎回到积分平台管理后台",
       });
-      
+
       navigate("/");
     } catch (error: any) {
       toast({
@@ -95,8 +96,8 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
               disabled={loading}
             >

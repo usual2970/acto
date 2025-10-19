@@ -55,6 +55,18 @@ func main() {
 
 	// Create Gin router
 	r := gin.New()
+	// Global CORS middleware
+	r.Use(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, X-Role")
+		c.Header("Vary", "Origin")
+		if c.Request.Method == http.MethodOptions {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		c.Next()
+	})
 	r.GET("/health", func(c *gin.Context) {
 		c.String(200, "ok")
 	})
