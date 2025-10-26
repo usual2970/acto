@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { toast } from '@/hooks/use-toast';
 import { Response } from '@/domain/common';
+import { useAuthStore } from '@/store/authStore';
+
+
+
+const forbiddenCode = 3999;
 
 // 创建 axios 实例
 let url = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -33,6 +38,19 @@ axiosInstance.interceptors.response.use(
   (response) => {
     console.log("Response:", response);
     const data = response.data as Response<any>;
+
+    // 检查 code 为 3999，跳转到登录页
+    if (data.code === forbiddenCode) {
+      toast({
+        title: '未授权',
+        description: '请重新登录',
+        variant: 'destructive',
+      });
+      useAuthStore.getState().logout();
+      window.location.href = '/login';
+      return Promise.reject(new Error('Unauthorized'));
+    }
+
     if (data.code !== 0) {
       toast({
         title: '错误',
@@ -54,9 +72,9 @@ axiosInstance.interceptors.response.use(
       variant: 'destructive',
     });
 
-    // 401 未授权，跳转到登录页
-    if (error.response?.status === 401 || error.response?.data?.code === 401) {
-      localStorage.removeItem('token');
+    // 401 未授权或 code 为 3999，跳转到登录页
+    if (error.response?.status === 401 || error.response?.data?.code === forbiddenCode) {
+      useAuthStore.getState().logout();
       window.location.href = '/login';
     }
 

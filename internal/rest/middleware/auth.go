@@ -14,17 +14,19 @@ import (
 
 // RequireAdmin validates Authorization: Bearer {token} JWT and ensures role=admin.
 // 认证成功后将用户信息写入 context，供后续 handler 使用。
+const forbiddenCode = 3999
+
 func RequireAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authz := r.Header.Get("Authorization")
 		const prefix = "Bearer "
 		if !strings.HasPrefix(authz, prefix) {
-			handlers.WriteError(w, 1004, "forbidden")
+			handlers.WriteError(w, forbiddenCode, "forbidden")
 			return
 		}
 		tokenStr := strings.TrimSpace(authz[len(prefix):])
 		if tokenStr == "" {
-			handlers.WriteError(w, 1004, "forbidden")
+			handlers.WriteError(w, forbiddenCode, "forbidden")
 			return
 		}
 
@@ -33,23 +35,23 @@ func RequireAdmin(next http.Handler) http.Handler {
 
 		tok, err := jwt.Parse(tokenStr, keyFunc, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
 		if err != nil || !tok.Valid {
-			handlers.WriteError(w, 1004, "forbidden")
+			handlers.WriteError(w, forbiddenCode, "forbidden")
 			return
 		}
 		claims, ok := tok.Claims.(jwt.MapClaims)
 		if !ok {
-			handlers.WriteError(w, 1004, "forbidden")
+			handlers.WriteError(w, forbiddenCode, "forbidden")
 			return
 		}
 		if issCfg := cfg.JWTIssuer; issCfg != "" {
 			if iss, _ := claims["iss"].(string); iss != issCfg {
-				handlers.WriteError(w, 1004, "forbidden")
+				handlers.WriteError(w, forbiddenCode, "forbidden")
 				return
 			}
 		}
 		role, _ := claims["role"].(string)
 		if role != "admin" {
-			handlers.WriteError(w, 1004, "forbidden")
+			handlers.WriteError(w, forbiddenCode, "forbidden")
 			return
 		}
 		username, _ := claims["sub"].(string)
