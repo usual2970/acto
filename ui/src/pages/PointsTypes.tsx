@@ -18,23 +18,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
-const mockPointsTypes = [
-  { id: 1, name: "基础积分", code: "BASE_POINTS", description: "用户基础行为积分", status: "active", totalUsers: 1234 },
-  { id: 2, name: "活动积分", code: "EVENT_POINTS", description: "参与活动获得的积分", status: "active", totalUsers: 856 },
-  { id: 3, name: "消费积分", code: "CONSUME_POINTS", description: "消费获得的积分", status: "inactive", totalUsers: 432 },
-];
+import { useQuery } from "@tanstack/react-query";
+import { pointsTypeApi } from "@/services/api";
 
 export default function PointsTypes() {
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedType, setSelectedType] = useState<typeof mockPointsTypes[0] | undefined>();
+  const [selectedType, setSelectedType] = useState<typeof pointTypes[0] | undefined>();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [typeToDelete, setTypeToDelete] = useState<typeof mockPointsTypes[0] | null>(null);
+  const [typeToDelete, setTypeToDelete] = useState<typeof pointTypes[0] | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
-  const handleEdit = (type: typeof mockPointsTypes[0]) => {
+  const { isPending, error, data: pointTypes = [] } = useQuery({
+    queryKey: ['pointsTypeStats'],
+    queryFn: () =>
+      pointsTypeApi.getList()
+  })
+
+  const handleEdit = (type: typeof pointTypes[0]) => {
     setSelectedType(type);
     setDialogOpen(true);
   };
@@ -44,15 +46,15 @@ export default function PointsTypes() {
     setDialogOpen(true);
   };
 
-  const handleToggleStatus = (type: typeof mockPointsTypes[0]) => {
-    const newStatus = type.status === "active" ? "禁用" : "启用";
+  const handleToggleStatus = (type: typeof pointTypes[0]) => {
+    const newStatus = type.enabled ? "启用" : "禁用";
     toast({
       title: "状态已更新",
       description: `积分类型 "${type.name}" 已${newStatus}`,
     });
   };
 
-  const handleDeleteClick = (type: typeof mockPointsTypes[0]) => {
+  const handleDeleteClick = (type: typeof pointTypes[0]) => {
     setTypeToDelete(type);
     setDeleteDialogOpen(true);
   };
@@ -68,12 +70,12 @@ export default function PointsTypes() {
     }
   };
 
-  const filteredTypes = mockPointsTypes.filter(
+  const filteredTypes = pointTypes.filter(
     (type) =>
-      type.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      type.code.toLowerCase().includes(searchQuery.toLowerCase())
+      type.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+ 
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -111,48 +113,48 @@ export default function PointsTypes() {
             </Card>
           ) : (
             filteredTypes.map((type) => (
-            <Card 
-              key={type.id} 
-              className="shadow-card hover:shadow-card-hover transition-shadow cursor-pointer"
-              onClick={() => navigate(`/points-types/${type.id}`)}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold text-foreground">{type.name}</h3>
-                      <Badge variant={type.status === "active" ? "default" : "secondary"}>
-                        {type.status === "active" ? "启用" : "禁用"}
-                      </Badge>
+              <Card
+                key={type.id}
+                className="shadow-card hover:shadow-card-hover transition-shadow cursor-pointer"
+                onClick={() => navigate(`/points-types/${type.id}`)}
+              >
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h3 className="text-xl font-semibold text-foreground">{type.name}</h3>
+                        <Badge variant={type.enabled ? "default" : "secondary"}>
+                          {type.enabled ? "启用" : "禁用"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">{type.description}</p>
+                      <div className="flex items-center gap-6 text-sm">
+                        <span className="text-muted-foreground">
+                          编码: <span className="font-mono text-foreground">{type.name}</span>
+                        </span>
+                        <span className="text-muted-foreground">
+                          用户数: <span className="font-semibold text-foreground">{100}</span>
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-3">{type.description}</p>
-                    <div className="flex items-center gap-6 text-sm">
-                      <span className="text-muted-foreground">
-                        编码: <span className="font-mono text-foreground">{type.code}</span>
-                      </span>
-                      <span className="text-muted-foreground">
-                        用户数: <span className="font-semibold text-foreground">{type.totalUsers}</span>
-                      </span>
+                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon" onClick={() => handleToggleStatus(type)} title={type.enabled ? "启用" : "禁用"}>
+                        {type.enabled ? (
+                          <ToggleRight className="w-5 h-5 text-success" />
+                        ) : (
+                          <ToggleLeft className="w-5 h-5 text-muted-foreground" />
+                        )}
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(type)} title="编辑">
+                        <Edit className="w-5 h-5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteClick(type)} title="删除">
+                        <Trash2 className="w-5 h-5" />
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="icon" onClick={() => handleToggleStatus(type)} title={type.status === "active" ? "禁用" : "启用"}>
-                      {type.status === "active" ? (
-                        <ToggleRight className="w-5 h-5 text-success" />
-                      ) : (
-                        <ToggleLeft className="w-5 h-5 text-muted-foreground" />
-                      )}
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(type)} title="编辑">
-                      <Edit className="w-5 h-5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteClick(type)} title="删除">
-                      <Trash2 className="w-5 h-5" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
             ))
           )}
         </div>

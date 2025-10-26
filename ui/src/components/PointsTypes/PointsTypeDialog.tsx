@@ -11,24 +11,24 @@ interface PointsTypeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   pointsType?: {
-    id: number;
+    id: string;
     name: string;
-    code: string;
+
     description: string;
-    status: string;
+    enabled: boolean;
   };
 }
 
 export function PointsTypeDialog({ open, onOpenChange, pointsType }: PointsTypeDialogProps) {
   const [name, setName] = useState(pointsType?.name || "");
-  const [code, setCode] = useState(pointsType?.code || "");
+  const [code, setCode] = useState(pointsType?.name || "");
   const [description, setDescription] = useState(pointsType?.description || "");
-  const [isActive, setIsActive] = useState<boolean>(!pointsType || pointsType.status === "active");
+  const [isActive, setIsActive] = useState<boolean>(!pointsType || pointsType.enabled);
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!name || !code) {
       toast({
         title: "提交失败",

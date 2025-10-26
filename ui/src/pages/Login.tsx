@@ -41,7 +41,7 @@ export default function Login() {
       console.log("Login response:", response);
 
       // 保存登录状态
-      login({ email: email }, response.data.token);
+      login({ email: email }, response.token);
 
       toast({
         title: "登录成功",

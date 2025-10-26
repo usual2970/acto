@@ -1,4 +1,5 @@
 import { Response } from '@/domain/common';
+import { PointType } from '@/domain/point_type';
 import axios from '@/lib/axios';
 
 
@@ -10,19 +11,43 @@ type LoginResponse = {
 // 积分类型相关接口
 export const pointsTypeApi = {
   // 获取积分类型列表
-  getList: () => axios.get('/admin/v1/points-types'),
+  getList: async () => {
+    const resp = await axios.get<Response<PointType[]>>('/admin/v1/point-types');
+    if (resp.data.code !== 0) {
+      throw new Error(resp.data.message);
+    }
+    return resp.data.data;
+  },
 
   // 获取积分类型详情
-  getDetail: (id: string) => axios.get(`/admin/v1/points-types/${id}`),
+  getDetail: async (id: string) => {
+    const resp = await axios.get<Response<PointType>>(`/admin/v1/point-types/${id}`);
+    if (resp.data.code !== 0) {
+      throw new Error(resp.data.message);
+    }
+    return resp.data.data;
+  },
 
   // 创建积分类型
-  create: (data: any) => axios.post('/admin/v1/points-types', data),
+  create: async (data: any) => {
+    const resp = await axios.post<Response<PointType>>('/admin/v1/point-types', data);
+    if (resp.data.code !== 0) {
+      throw new Error(resp.data.message);
+    }
+    return resp.data.data;
+  },
 
   // 更新积分类型
-  update: (id: string, data: any) => axios.put(`/admin/v1/points-types/${id}`, data),
+  update: async (id: string, data: any) => {
+    const resp = await axios.put<Response<PointType>>(`/admin/v1/point-types/${id}`, data);
+    if (resp.data.code !== 0) {
+      throw new Error(resp.data.message);
+    }
+    return resp.data.data;
+  },
 
   // 删除积分类型
-  delete: (id: string) => axios.delete(`/admin/v1/points-types/${id}`),
+  delete: (id: string) => axios.delete(`/admin/v1/point-types/${id}`),
 };
 
 // 用户积分相关接口
@@ -65,7 +90,11 @@ export const authApi = {
   // 登录
   login: async (data: { username: string; password: string }) => {
     const resp = await axios.post<Response<LoginResponse>>('/admin/v1/login', data);
-    return resp.data;
+    if (resp.data.code !== 0) {
+      throw new Error(resp.data.message);
+    }
+
+    return resp.data.data;
   },
 
   // 登出
