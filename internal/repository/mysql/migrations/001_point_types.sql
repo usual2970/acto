@@ -1,7 +1,7 @@
 -- Point types table
 CREATE TABLE IF NOT EXISTS point_types (
   id CHAR(36) NOT NULL,
-  name VARCHAR(128) NOT NULL UNIQUE,
+  uri VARCHAR(128) NOT NULL UNIQUE,
   display_name VARCHAR(256) NOT NULL,
   description TEXT NULL,
   enabled TINYINT(1) NOT NULL DEFAULT 1,

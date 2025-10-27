@@ -50,7 +50,7 @@ export default function PointsTypes() {
     const newStatus = type.enabled ? "启用" : "禁用";
     toast({
       title: "状态已更新",
-      description: `积分类型 "${type.name}" 已${newStatus}`,
+      description: `积分类型 "${type.displayName}" 已${newStatus}`,
     });
   };
 
@@ -63,7 +63,7 @@ export default function PointsTypes() {
     if (typeToDelete) {
       toast({
         title: "删除成功",
-        description: `积分类型 "${typeToDelete.name}" 已删除`,
+        description: `积分类型 "${typeToDelete.displayName}" 已删除`,
       });
       setDeleteDialogOpen(false);
       setTypeToDelete(null);
@@ -72,10 +72,10 @@ export default function PointsTypes() {
 
   const filteredTypes = pointTypes.filter(
     (type) =>
-      type.name.toLowerCase().includes(searchQuery.toLowerCase())
+      type.displayName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
- 
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -122,7 +122,7 @@ export default function PointsTypes() {
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-xl font-semibold text-foreground">{type.name}</h3>
+                        <h3 className="text-xl font-semibold text-foreground">{type.displayName}</h3>
                         <Badge variant={type.enabled ? "default" : "secondary"}>
                           {type.enabled ? "启用" : "禁用"}
                         </Badge>
@@ -130,7 +130,7 @@ export default function PointsTypes() {
                       <p className="text-sm text-muted-foreground mb-3">{type.description}</p>
                       <div className="flex items-center gap-6 text-sm">
                         <span className="text-muted-foreground">
-                          编码: <span className="font-mono text-foreground">{type.name}</span>
+                          编码: <span className="font-mono text-foreground">{type.uri}</span>
                         </span>
                         <span className="text-muted-foreground">
                           用户数: <span className="font-semibold text-foreground">{100}</span>
@@ -170,7 +170,7 @@ export default function PointsTypes() {
             <AlertDialogHeader>
               <AlertDialogTitle>确认删除</AlertDialogTitle>
               <AlertDialogDescription>
-                确定要删除积分类型 "<span className="font-semibold text-foreground">{typeToDelete?.name}</span>" 吗？
+                确定要删除积分类型 "<span className="font-semibold text-foreground">{typeToDelete?.displayName}</span>" 吗？
                 此操作不可撤销，相关的用户积分数据也将受到影响。
               </AlertDialogDescription>
             </AlertDialogHeader>

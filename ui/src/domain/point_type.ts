@@ -2,7 +2,7 @@
 
 export type PointType = {
     id: string;
-    name: string;
+    uri: string;
     displayName: string;
     description: string;
     enabled: boolean;

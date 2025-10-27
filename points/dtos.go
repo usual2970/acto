@@ -1,26 +1,26 @@
 package points
 
 type BalanceCreditRequest struct {
-	UserID        string `json:"userId"`
-	PointTypeName string `json:"pointTypeName"`
-	Reason        string `json:"reason"`
-	Amount        int64  `json:"amount"`
+	UserID string `json:"userId"`
+	URI    string `json:"uri"`
+	Reason string `json:"reason"`
+	Amount int64  `json:"amount"`
 }
 
 type BalanceDebitRequest struct {
-	UserID        string `json:"userId"`
-	PointTypeName string `json:"pointTypeName"`
-	Reason        string `json:"reason"`
-	Amount        int64  `json:"amount"`
+	UserID string `json:"userId"`
+	URI    string `json:"uri"`
+	Reason string `json:"reason"`
+	Amount int64  `json:"amount"`
 }
 
 type DistirbutionsExecuteRequest struct {
-	PointTypeName string `json:"pointTypeName"`
-	TopN          int    `json:"topN"`
+	URI  string `json:"uri"`
+	TopN int    `json:"topN"`
 }
 
 type PointTypeCreateRequest struct {
-	Name        string `json:"name"`
+	URI         string `json:"uri"`
 	DisplayName string `json:"displayName"`
 	Description string `json:"description"`
 }

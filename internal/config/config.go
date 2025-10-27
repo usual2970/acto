@@ -35,7 +35,7 @@ func Load() Config {
 			AuthPassword: getenv("AUTH_PASSWORD", "admin123"),
 			JWTSecret:    getenv("JWT_SECRET", "dev-secret"),
 			JWTIssuer:    getenv("JWT_ISSUER", "acto-auth"),
-			JWTTTL:       getenv("JWT_TTL", "1h"),
+			JWTTTL:       getenv("JWT_TTL", "720h"),
 		}
 	})
 	return cachedCfg

@@ -21,10 +21,10 @@ func (r *CustomPointTypeRepo) DeletePointType(ctx context.Context, pointTypeID s
 }
 func (r *CustomPointTypeRepo) SoftDeletePointType(ctx context.Context, name string) error { return nil }
 func (r *CustomPointTypeRepo) GetPointTypeByID(ctx context.Context, pointTypeID string) (*d.PointType, error) {
-	return &d.PointType{ID: pointTypeID, Name: "gold-points"}, nil
+	return &d.PointType{ID: pointTypeID, URI: "gold-points"}, nil
 }
 func (r *CustomPointTypeRepo) GetPointTypeByName(ctx context.Context, name string) (*d.PointType, error) {
-	return &d.PointType{ID: "custom-id", Name: name}, nil
+	return &d.PointType{ID: "custom-id", URI: name}, nil
 }
 func (r *CustomPointTypeRepo) ListPointTypes(ctx context.Context, limit, offset int) ([]d.PointType, error) {
 	return []d.PointType{}, nil

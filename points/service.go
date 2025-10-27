@@ -15,7 +15,7 @@ type PointTypeRepository interface {
 	DeletePointType(ctx context.Context, pointTypeID string) error
 	SoftDeletePointType(ctx context.Context, name string) error
 	GetPointTypeByID(ctx context.Context, pointTypeID string) (*d.PointType, error)
-	GetPointTypeByName(ctx context.Context, name string) (*d.PointType, error)
+	GetPointTypeByURI(ctx context.Context, name string) (*d.PointType, error)
 	ListPointTypes(ctx context.Context, limit, offset int) ([]d.PointType, error)
 	HasBalances(ctx context.Context, pointTypeID string) (bool, error)
 }

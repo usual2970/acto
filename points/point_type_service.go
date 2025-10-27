@@ -16,21 +16,21 @@ func NewPointTypeService(repo PointTypeRepository) *PointTypeService {
 }
 
 func (s *PointTypeService) Create(ctx context.Context, req PointTypeCreateRequest) (string, error) {
-	name := strings.TrimSpace(req.Name)
-	if name == "" {
+	uri := strings.TrimSpace(req.URI)
+	if uri == "" {
 		return "", d.ErrDuplicatePointTypeName
 	}
 	return s.repo.CreatePointType(ctx, d.PointType{
-		Name:        name,
+		URI:         uri,
 		DisplayName: strings.TrimSpace(req.DisplayName),
 		Description: strings.TrimSpace(req.Description),
 		Enabled:     true,
 	})
 }
 
-func (s *PointTypeService) Update(ctx context.Context, name string, updates PointTypeUpdateRequest) error {
+func (s *PointTypeService) Update(ctx context.Context, uri string, updates PointTypeUpdateRequest) error {
 	// 首先验证积分类型是否存在
-	existing, err := s.repo.GetPointTypeByName(ctx, name)
+	existing, err := s.repo.GetPointTypeByURI(ctx, uri)
 	if err != nil {
 		return err
 	}
@@ -53,9 +53,9 @@ func (s *PointTypeService) Update(ctx context.Context, name string, updates Poin
 	return s.repo.UpdatePointType(ctx, updated)
 }
 
-func (s *PointTypeService) Delete(ctx context.Context, name string) error {
+func (s *PointTypeService) Delete(ctx context.Context, uri string) error {
 	// 首先验证积分类型是否存在
-	existing, err := s.repo.GetPointTypeByName(ctx, name)
+	existing, err := s.repo.GetPointTypeByURI(ctx, uri)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func (s *PointTypeService) Delete(ctx context.Context, name string) error {
 	}
 
 	// 执行软删除
-	return s.repo.SoftDeletePointType(ctx, name)
+	return s.repo.SoftDeletePointType(ctx, uri)
 }
 
 func (s *PointTypeService) GetByID(ctx context.Context, id string) (*d.PointType, error) {

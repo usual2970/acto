@@ -18,12 +18,12 @@ func NewPointTypeRepository(db *sql.DB) *PointTypeRepository { return &PointType
 var _ uc.PointTypeRepository = (*PointTypeRepository)(nil)
 
 func (r *PointTypeRepository) CreatePointType(ctx context.Context, pt d.PointType) (string, error) {
-	_, err := r.db.ExecContext(ctx, `INSERT INTO point_types (id,name,display_name,description,enabled,created_at) VALUES (UUID(),?,?,?,?,?)`, pt.Name, pt.DisplayName, pt.Description, pt.Enabled, time.Now().Unix())
+	_, err := r.db.ExecContext(ctx, `INSERT INTO point_types (id,uri,display_name,description,enabled,created_at) VALUES (UUID(),?,?,?,?,?)`, pt.URI, pt.DisplayName, pt.Description, pt.Enabled, time.Now().Unix())
 	if err != nil {
 		return "", err
 	}
 
-	return pt.Name, nil
+	return pt.URI, nil
 }
 
 func (r *PointTypeRepository) UpdatePointType(ctx context.Context, pt d.PointType) error {
@@ -36,27 +36,27 @@ func (r *PointTypeRepository) DeletePointType(ctx context.Context, pointTypeID s
 	return err
 }
 
-func (r *PointTypeRepository) SoftDeletePointType(ctx context.Context, name string) error {
-	_, err := r.db.ExecContext(ctx, `UPDATE point_types SET deleted_at=? WHERE name=?`, time.Now().Unix(), name)
+func (r *PointTypeRepository) SoftDeletePointType(ctx context.Context, uri string) error {
+	_, err := r.db.ExecContext(ctx, `UPDATE point_types SET deleted_at=? WHERE uri=?`, time.Now().Unix(), uri)
 	return err
 }
 
 func (r *PointTypeRepository) GetPointTypeByID(ctx context.Context, pointTypeID string) (*d.PointType, error) {
-	row := r.db.QueryRowContext(ctx, `SELECT id,name,display_name,description,enabled,deleted_at,created_at FROM point_types WHERE id=? AND deleted_at IS NULL`, pointTypeID)
+	row := r.db.QueryRowContext(ctx, `SELECT id,uri,display_name,description,enabled,deleted_at,created_at FROM point_types WHERE id=? AND deleted_at IS NULL`, pointTypeID)
 	var pt d.PointType
 	var deletedAt *int64
-	if err := row.Scan(&pt.ID, &pt.Name, &pt.DisplayName, &pt.Description, &pt.Enabled, &deletedAt, &pt.CreatedAt); err != nil {
+	if err := row.Scan(&pt.ID, &pt.URI, &pt.DisplayName, &pt.Description, &pt.Enabled, &deletedAt, &pt.CreatedAt); err != nil {
 		return nil, err
 	}
 	pt.DeletedAt = deletedAt
 	return &pt, nil
 }
 
-func (r *PointTypeRepository) GetPointTypeByName(ctx context.Context, name string) (*d.PointType, error) {
-	row := r.db.QueryRowContext(ctx, `SELECT id,name,display_name,description,enabled,deleted_at,created_at FROM point_types WHERE name=? AND deleted_at IS NULL`, name)
+func (r *PointTypeRepository) GetPointTypeByURI(ctx context.Context, uri string) (*d.PointType, error) {
+	row := r.db.QueryRowContext(ctx, `SELECT id,uri,display_name,description,enabled,deleted_at,created_at FROM point_types WHERE uri=? AND deleted_at IS NULL`, uri)
 	var pt d.PointType
 	var deletedAt *int64
-	if err := row.Scan(&pt.ID, &pt.Name, &pt.DisplayName, &pt.Description, &pt.Enabled, &deletedAt, &pt.CreatedAt); err != nil {
+	if err := row.Scan(&pt.ID, &pt.URI, &pt.DisplayName, &pt.Description, &pt.Enabled, &deletedAt, &pt.CreatedAt); err != nil {
 		return nil, err
 	}
 	pt.DeletedAt = deletedAt
@@ -64,7 +64,7 @@ func (r *PointTypeRepository) GetPointTypeByName(ctx context.Context, name strin
 }
 
 func (r *PointTypeRepository) ListPointTypes(ctx context.Context, limit, offset int) ([]d.PointType, error) {
-	rows, err := r.db.QueryContext(ctx, `SELECT id,name,display_name,description,enabled,deleted_at,created_at FROM point_types WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT ? OFFSET ?`, limit, offset)
+	rows, err := r.db.QueryContext(ctx, `SELECT id,uri,display_name,description,enabled,deleted_at,created_at FROM point_types WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT ? OFFSET ?`, limit, offset)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (r *PointTypeRepository) ListPointTypes(ctx context.Context, limit, offset 
 	for rows.Next() {
 		var pt d.PointType
 		var deletedAt *int64
-		if err := rows.Scan(&pt.ID, &pt.Name, &pt.DisplayName, &pt.Description, &pt.Enabled, &deletedAt, &pt.CreatedAt); err != nil {
+		if err := rows.Scan(&pt.ID, &pt.URI, &pt.DisplayName, &pt.Description, &pt.Enabled, &deletedAt, &pt.CreatedAt); err != nil {
 			return nil, err
 		}
 		pt.DeletedAt = deletedAt

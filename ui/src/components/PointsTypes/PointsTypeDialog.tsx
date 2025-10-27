@@ -12,7 +12,8 @@ interface PointsTypeDialogProps {
   onOpenChange: (open: boolean) => void;
   pointsType?: {
     id: string;
-    name: string;
+    uri: string;
+    displayName: string;
 
     description: string;
     enabled: boolean;
@@ -20,8 +21,8 @@ interface PointsTypeDialogProps {
 }
 
 export function PointsTypeDialog({ open, onOpenChange, pointsType }: PointsTypeDialogProps) {
-  const [name, setName] = useState(pointsType?.name || "");
-  const [code, setCode] = useState(pointsType?.name || "");
+  const [name, setName] = useState(pointsType?.displayName || "");
+  const [code, setCode] = useState(pointsType?.uri || "");
   const [description, setDescription] = useState(pointsType?.description || "");
   const [isActive, setIsActive] = useState<boolean>(!pointsType || pointsType.enabled);
   const { toast } = useToast();

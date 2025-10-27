@@ -36,7 +36,6 @@ axiosInstance.interceptors.request.use(
 // 响应拦截器'
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log("Response:", response);
     const data = response.data as Response<any>;
 
     // 检查 code 为 3999，跳转到登录页

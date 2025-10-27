@@ -20,7 +20,7 @@ func (s *BalanceService) Credit(ctx context.Context, req BalanceCreditRequest) e
 	if req.Amount <= 0 {
 		return nil
 	}
-	pt, err := s.pointTypes.GetPointTypeByName(ctx, req.PointTypeName)
+	pt, err := s.pointTypes.GetPointTypeByURI(ctx, req.URI)
 	if err != nil {
 		return err
 	}
@@ -49,7 +49,7 @@ func (s *BalanceService) Debit(ctx context.Context, req BalanceDebitRequest) err
 	if req.Amount <= 0 {
 		return nil
 	}
-	pt, err := s.pointTypes.GetPointTypeByName(ctx, req.PointTypeName)
+	pt, err := s.pointTypes.GetPointTypeByURI(ctx, req.URI)
 	if err != nil {
 		return err
 	}
@@ -78,10 +78,10 @@ func (s *BalanceService) Debit(ctx context.Context, req BalanceDebitRequest) err
 }
 
 // ListTransactions returns transactions for a user with optional filters
-func (s *BalanceService) ListTransactions(ctx context.Context, userID, pointTypeName, op string, startTime, endTime int64, limit, offset int) ([]d.Transaction, int, error) {
+func (s *BalanceService) ListTransactions(ctx context.Context, userID, uri, op string, startTime, endTime int64, limit, offset int) ([]d.Transaction, int, error) {
 	var pointTypeID string
-	if pointTypeName != "" {
-		pt, err := s.pointTypes.GetPointTypeByName(ctx, pointTypeName)
+	if uri != "" {
+		pt, err := s.pointTypes.GetPointTypeByURI(ctx, uri)
 		if err != nil {
 			return nil, 0, err
 		}

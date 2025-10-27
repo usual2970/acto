@@ -27,10 +27,10 @@ func NewRankingsService(rank RankingRepository, pts PointTypeRepository) Ranking
 	return &rankingsService{ranking: rank, points: pts}
 }
 
-func (s *rankingsService) GetTop(ctx context.Context, pointTypeName string, limit, offset int) ([]string, error) {
+func (s *rankingsService) GetTop(ctx context.Context, uri string, limit, offset int) ([]string, error) {
 	var ptID string
-	if pointTypeName != "" && s.points != nil {
-		if pt, err := s.points.GetPointTypeByName(ctx, pointTypeName); err == nil && pt != nil {
+	if uri != "" && s.points != nil {
+		if pt, err := s.points.GetPointTypeByURI(ctx, uri); err == nil && pt != nil {
 			ptID = pt.ID
 		}
 	}
@@ -44,7 +44,7 @@ func (s *rankingsService) GetTop(ctx context.Context, pointTypeName string, limi
 
 // Execute runs a distribution for a point type using current ranking top N and active rules.
 func (s *DistributionService) Execute(ctx context.Context, req DistirbutionsExecuteRequest) error {
-	pt, err := s.points.GetPointTypeByName(ctx, req.PointTypeName)
+	pt, err := s.points.GetPointTypeByURI(ctx, req.URI)
 	if err != nil {
 		return err
 	}
