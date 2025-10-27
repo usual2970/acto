@@ -12,25 +12,25 @@ import (
 type PointTypeRepository interface {
 	CreatePointType(ctx context.Context, pt d.PointType) (string, error)
 	UpdatePointType(ctx context.Context, pt d.PointType) error
-	DeletePointType(ctx context.Context, pointTypeID string) error
+	DeletePointType(ctx context.Context, pointTypeID int64) error
 	SoftDeletePointType(ctx context.Context, name string) error
-	GetPointTypeByID(ctx context.Context, pointTypeID string) (*d.PointType, error)
+	GetPointTypeByID(ctx context.Context, pointTypeID int64) (*d.PointType, error)
 	GetPointTypeByURI(ctx context.Context, name string) (*d.PointType, error)
 	ListPointTypes(ctx context.Context, limit, offset int) ([]d.PointType, error)
-	HasBalances(ctx context.Context, pointTypeID string) (bool, error)
+	HasBalances(ctx context.Context, pointTypeID int64) (bool, error)
 }
 
 type BalanceRepository interface {
 	WithTx(ctx context.Context, fn func(ctx context.Context) error) error
-	GetUserBalanceForUpdate(ctx context.Context, userID, pointTypeID string) (*d.UserBalance, error)
+	GetUserBalanceForUpdate(ctx context.Context, userID string, pointTypeID int64) (*d.UserBalance, error)
 	UpsertUserBalance(ctx context.Context, ub d.UserBalance) error
 	InsertTransaction(ctx context.Context, tx d.Transaction) (string, error)
 	ListTransactions(ctx context.Context, userID string, filter TransactionFilter) ([]d.Transaction, int, error)
 }
 
 type RankingRepository interface {
-	UpdateUserScore(ctx context.Context, pointTypeID, userID string, score int64) error
-	GetTop(ctx context.Context, pointTypeID string, start, stop int64) ([]string, error)
+	UpdateUserScore(ctx context.Context, pointTypeID int64, userID string, score int64) error
+	GetTop(ctx context.Context, pointTypeID int64, start, stop int64) ([]string, error)
 }
 
 // RankingsService provides read-only ranking queries for delivery layer
@@ -40,7 +40,7 @@ type RankingsService interface {
 
 type RewardRepository interface {
 	CreateRule(ctx context.Context, rr d.RewardRule) (string, error)
-	ListRules(ctx context.Context, pointTypeID string) ([]d.RewardRule, error)
+	ListRules(ctx context.Context, pointTypeID int64) ([]d.RewardRule, error)
 	CreateDistribution(ctx context.Context, rd d.RewardDistribution) (string, error)
 	MarkDistributionCompleted(ctx context.Context, distributionID string) error
 }
@@ -54,7 +54,7 @@ type RedemptionRepository interface {
 
 // TransactionFilter defines optional filters and pagination for listing transactions
 type TransactionFilter struct {
-	PointTypeID   string
+	PointTypeID   int64
 	OperationType string // "credit" | "debit" | ""
 	StartTime     int64  // Unix timestamp or 0
 	EndTime       int64  // Unix timestamp or 0

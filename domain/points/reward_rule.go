@@ -7,6 +7,6 @@ type RewardRule struct {
 	MinRank           int    `json:"minRank"`
 	MaxRank           int    `json:"maxRank"`
 	RewardAmount      int64  `json:"rewardAmount"`
-	RewardPointTypeID string `json:"rewardPointTypeId"`
+	RewardPointTypeID int64  `json:"rewardPointTypeId"`
 	Active            bool   `json:"active"`
 }

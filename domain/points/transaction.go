@@ -12,7 +12,7 @@ const (
 type Transaction struct {
 	ID          string          `json:"id"`
 	UserID      string          `json:"userId"`
-	PointTypeID string          `json:"pointTypeId"`
+	PointTypeID int64           `json:"pointTypeId"`
 	Amount      int64           `json:"amount"`
 	Type        TransactionType `json:"type"`
 	Reason      string          `json:"reason"`

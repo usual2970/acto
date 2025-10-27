@@ -2,7 +2,7 @@ package points
 
 // PointType represents a type of points in the system
 type PointType struct {
-	ID          string `json:"id"`
+	ID          int64  `json:"id"`
 	URI         string `json:"uri"`
 	DisplayName string `json:"displayName"`
 	Description string `json:"description"`

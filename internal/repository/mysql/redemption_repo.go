@@ -16,7 +16,7 @@ func NewRedemptionRepository(db *sql.DB) *RedemptionRepository { return &Redempt
 var _ uc.RedemptionRepository = (*RedemptionRepository)(nil)
 
 func (r *RedemptionRepository) CreateReward(ctx context.Context, rr d.RedemptionReward) (string, error) {
-	_, err := r.db.ExecContext(ctx, `INSERT INTO redemption_rewards (id,name,description,quantity,enabled,total_redeemed,created_at) VALUES (UUID(),?,?,?,?,0,?)`, rr.Name, rr.Description, rr.Quantity, rr.Enabled, time.Now().Unix())
+	_, err := r.db.ExecContext(ctx, `INSERT INTO redemption_rewards (name,description,quantity,enabled,total_redeemed,created_at) VALUES (?,?,?,?,0,?)`, rr.Name, rr.Description, rr.Quantity, rr.Enabled, time.Now().Unix())
 	if err != nil {
 		return "", err
 	}
@@ -41,9 +41,9 @@ func (r *RedemptionRepository) GetRewardByID(ctx context.Context, rewardID strin
 		return nil, err
 	}
 	defer rows.Close()
-	rr.Costs = map[string]int64{}
+	rr.Costs = map[int64]int64{}
 	for rows.Next() {
-		var pt string
+		var pt int64
 		var amt int64
 		if err := rows.Scan(&pt, &amt); err != nil {
 			return nil, err
@@ -59,7 +59,7 @@ func (r *RedemptionRepository) DecrementInventory(ctx context.Context, rewardID 
 }
 
 func (r *RedemptionRepository) CreateRedemptionRecord(ctx context.Context, rec d.RedemptionRecord) (string, error) {
-	_, err := r.db.ExecContext(ctx, `INSERT INTO redemption_records (id,user_id,reward_id,status,created_at) VALUES (UUID(),?,?,'completed',?)`, rec.UserID, rec.RewardID, time.Now().Unix())
+	_, err := r.db.ExecContext(ctx, `INSERT INTO redemption_records (user_id,reward_id,status,created_at) VALUES (?,?,'completed',?)`, rec.UserID, rec.RewardID, time.Now().Unix())
 	if err != nil {
 		return "", err
 	}

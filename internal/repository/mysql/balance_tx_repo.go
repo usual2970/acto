@@ -45,7 +45,7 @@ type executor interface {
 	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
 }
 
-func (r *BalanceTxRepository) GetUserBalanceForUpdate(ctx context.Context, userID, pointTypeID string) (*d.UserBalance, error) {
+func (r *BalanceTxRepository) GetUserBalanceForUpdate(ctx context.Context, userID string, pointTypeID int64) (*d.UserBalance, error) {
 	ex := getTx(ctx, r.db)
 	row := ex.QueryRowContext(ctx, `SELECT user_id, point_type_id, balance, updated_at FROM user_balances WHERE user_id=? AND point_type_id=? FOR UPDATE`, userID, pointTypeID)
 	var ub d.UserBalance
@@ -66,7 +66,7 @@ func (r *BalanceTxRepository) UpsertUserBalance(ctx context.Context, ub d.UserBa
 
 func (r *BalanceTxRepository) InsertTransaction(ctx context.Context, tx d.Transaction) (string, error) {
 	ex := getTx(ctx, r.db)
-	_, err := ex.ExecContext(ctx, `INSERT INTO transactions (id,user_id,point_type_id,amount,type,reason,before_balance,after_balance,created_at) VALUES (UUID(),?,?,?,?,?,?,?,?)`, tx.UserID, tx.PointTypeID, tx.Amount, string(tx.Type), tx.Reason, tx.Before, tx.After, time.Now().Unix())
+	_, err := ex.ExecContext(ctx, `INSERT INTO transactions (user_id,point_type_id,amount,type,reason,before_balance,after_balance,created_at) VALUES (?,?,?,?,?,?,?,?)`, tx.UserID, tx.PointTypeID, tx.Amount, string(tx.Type), tx.Reason, tx.Before, tx.After, time.Now().Unix())
 	if err != nil {
 		return "", err
 	}
@@ -78,7 +78,7 @@ func (r *BalanceTxRepository) InsertTransaction(ctx context.Context, tx d.Transa
 func (r *BalanceTxRepository) ListTransactions(ctx context.Context, userID string, filter uc.TransactionFilter) ([]d.Transaction, int, error) {
 	where := "WHERE user_id=?"
 	args := []any{userID}
-	if filter.PointTypeID != "" {
+	if filter.PointTypeID != 0 {
 		where += " AND point_type_id=?"
 		args = append(args, filter.PointTypeID)
 	}

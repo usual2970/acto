@@ -79,7 +79,7 @@ func (s *BalanceService) Debit(ctx context.Context, req BalanceDebitRequest) err
 
 // ListTransactions returns transactions for a user with optional filters
 func (s *BalanceService) ListTransactions(ctx context.Context, userID, uri, op string, startTime, endTime int64, limit, offset int) ([]d.Transaction, int, error) {
-	var pointTypeID string
+	var pointTypeID int64
 	if uri != "" {
 		pt, err := s.pointTypes.GetPointTypeByURI(ctx, uri)
 		if err != nil {

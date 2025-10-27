@@ -81,7 +81,7 @@ func (s *PointTypeService) Delete(ctx context.Context, uri string) error {
 	return s.repo.SoftDeletePointType(ctx, uri)
 }
 
-func (s *PointTypeService) GetByID(ctx context.Context, id string) (*d.PointType, error) {
+func (s *PointTypeService) GetByID(ctx context.Context, id int64) (*d.PointType, error) {
 	return s.repo.GetPointTypeByID(ctx, id)
 }
 

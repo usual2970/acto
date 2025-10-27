@@ -16,7 +16,7 @@ func NewRewardsRepository(db *sql.DB) *RewardsRepository { return &RewardsReposi
 var _ uc.RewardRepository = (*RewardsRepository)(nil)
 
 func (r *RewardsRepository) CreateRule(ctx context.Context, rr d.RewardRule) (string, error) {
-	_, err := r.db.ExecContext(ctx, `INSERT INTO reward_rules (id,point_type_id,min_rank,max_rank,reward_amount,reward_point_type_id,active) VALUES (UUID(),?,?,?,?,?,?)`, rr.PointTypeID, rr.MinRank, rr.MaxRank, rr.RewardAmount, rr.RewardPointTypeID, rr.Active)
+	_, err := r.db.ExecContext(ctx, `INSERT INTO reward_rules (point_type_id,min_rank,max_rank,reward_amount,reward_point_type_id,active) VALUES (?,?,?,?,?,?)`, rr.PointTypeID, rr.MinRank, rr.MaxRank, rr.RewardAmount, rr.RewardPointTypeID, rr.Active)
 	if err != nil {
 		return "", err
 	}
@@ -25,7 +25,7 @@ func (r *RewardsRepository) CreateRule(ctx context.Context, rr d.RewardRule) (st
 	return id, nil
 }
 
-func (r *RewardsRepository) ListRules(ctx context.Context, pointTypeID string) ([]d.RewardRule, error) {
+func (r *RewardsRepository) ListRules(ctx context.Context, pointTypeID int64) ([]d.RewardRule, error) {
 	rows, err := r.db.QueryContext(ctx, `SELECT id,point_type_id,min_rank,max_rank,reward_amount,reward_point_type_id,active FROM reward_rules WHERE point_type_id=? AND active=1`, pointTypeID)
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (r *RewardsRepository) ListRules(ctx context.Context, pointTypeID string) (
 }
 
 func (r *RewardsRepository) CreateDistribution(ctx context.Context, rd d.RewardDistribution) (string, error) {
-	_, err := r.db.ExecContext(ctx, `INSERT INTO reward_distributions (id,snapshot_id,status) VALUES (UUID(),?,?)`, rd.SnapshotID, rd.Status)
+	_, err := r.db.ExecContext(ctx, `INSERT INTO reward_distributions (snapshot_id,status) VALUES (?,?)`, rd.SnapshotID, rd.Status)
 	if err != nil {
 		return "", err
 	}

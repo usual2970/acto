@@ -18,7 +18,7 @@ func NewPointTypeRepository(db *sql.DB) *PointTypeRepository { return &PointType
 var _ uc.PointTypeRepository = (*PointTypeRepository)(nil)
 
 func (r *PointTypeRepository) CreatePointType(ctx context.Context, pt d.PointType) (string, error) {
-	_, err := r.db.ExecContext(ctx, `INSERT INTO point_types (id,uri,display_name,description,enabled,created_at) VALUES (UUID(),?,?,?,?,?)`, pt.URI, pt.DisplayName, pt.Description, pt.Enabled, time.Now().Unix())
+	_, err := r.db.ExecContext(ctx, `INSERT INTO point_types (uri,display_name,description,enabled,created_at) VALUES (?,?,?,?,?)`, pt.URI, pt.DisplayName, pt.Description, pt.Enabled, time.Now().Unix())
 	if err != nil {
 		return "", err
 	}
@@ -31,7 +31,7 @@ func (r *PointTypeRepository) UpdatePointType(ctx context.Context, pt d.PointTyp
 	return err
 }
 
-func (r *PointTypeRepository) DeletePointType(ctx context.Context, pointTypeID string) error {
+func (r *PointTypeRepository) DeletePointType(ctx context.Context, pointTypeID int64) error {
 	_, err := r.db.ExecContext(ctx, `DELETE FROM point_types WHERE id=?`, pointTypeID)
 	return err
 }
@@ -41,7 +41,7 @@ func (r *PointTypeRepository) SoftDeletePointType(ctx context.Context, uri strin
 	return err
 }
 
-func (r *PointTypeRepository) GetPointTypeByID(ctx context.Context, pointTypeID string) (*d.PointType, error) {
+func (r *PointTypeRepository) GetPointTypeByID(ctx context.Context, pointTypeID int64) (*d.PointType, error) {
 	row := r.db.QueryRowContext(ctx, `SELECT id,uri,display_name,description,enabled,deleted_at,created_at FROM point_types WHERE id=? AND deleted_at IS NULL`, pointTypeID)
 	var pt d.PointType
 	var deletedAt *int64
@@ -82,7 +82,7 @@ func (r *PointTypeRepository) ListPointTypes(ctx context.Context, limit, offset 
 	return res, rows.Err()
 }
 
-func (r *PointTypeRepository) HasBalances(ctx context.Context, pointTypeID string) (bool, error) {
+func (r *PointTypeRepository) HasBalances(ctx context.Context, pointTypeID int64) (bool, error) {
 	// Placeholder: real check when balances table exists
 	return false, nil
 }

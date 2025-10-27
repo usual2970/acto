@@ -28,7 +28,7 @@ func NewRankingsService(rank RankingRepository, pts PointTypeRepository) Ranking
 }
 
 func (s *rankingsService) GetTop(ctx context.Context, uri string, limit, offset int) ([]string, error) {
-	var ptID string
+	var ptID int64
 	if uri != "" && s.points != nil {
 		if pt, err := s.points.GetPointTypeByURI(ctx, uri); err == nil && pt != nil {
 			ptID = pt.ID
