@@ -2,6 +2,7 @@ package points
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	d "github.com/usual2970/acto/domain/points"
@@ -18,14 +19,18 @@ func NewPointTypeService(repo PointTypeRepository) *PointTypeService {
 func (s *PointTypeService) Create(ctx context.Context, req PointTypeCreateRequest) (string, error) {
 	uri := strings.TrimSpace(req.URI)
 	if uri == "" {
-		return "", d.ErrDuplicatePointTypeName
+		return "", errors.New("uri cannot be empty")
 	}
-	return s.repo.CreatePointType(ctx, d.PointType{
+	rs, err := s.repo.CreatePointType(ctx, d.PointType{
 		URI:         uri,
 		DisplayName: strings.TrimSpace(req.DisplayName),
 		Description: strings.TrimSpace(req.Description),
 		Enabled:     true,
 	})
+	if err != nil {
+		return "", errors.New("create point type failed")
+	}
+	return rs, nil
 }
 
 func (s *PointTypeService) Update(ctx context.Context, uri string, updates PointTypeUpdateRequest) error {

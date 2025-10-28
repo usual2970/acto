@@ -19,6 +19,6 @@ func WriteDomainError(w http.ResponseWriter, err error) {
 	case d.ErrUnauthorizedOperation:
 		WriteError(w, 1004, "forbidden")
 	default:
-		WriteError(w, 1500, "internal error")
+		WriteError(w, 1500, err.Error())
 	}
 }
